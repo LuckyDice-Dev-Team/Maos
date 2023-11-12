@@ -1,0 +1,57 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "node": true
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "ignorePatterns": ["scripts/*.js"],
+  "rules": {
+    "no-bitwise": "off",
+    "no-await-in-loop": "off",
+    "no-restricted-syntax": "off",
+    "no-shadow": "off",
+    "no-plusplus": "off",
+    "no-constant-condition": "off",
+    "no-underscore-dangle": "off",
+    "no-param-reassign": "off",
+    "no-continue": "off",
+    "no-void": "off",
+    "no-loop-func": "off",
+    "no-trailing-spaces": "error",
+    "prefer-destructuring": "off",
+    "linebreak-style": "off",
+    "func-names": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "import/extensions": "off",
+    "import/prefer-default-export": "off",
+    "max-len": ["warn", 150],
+    "arrow-body-style": "off",
+    "lines-between-class-members": "off",
+    "object-curly-newline": "off",
+    "class-methods-use-this": "off",
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": false,
+        "semi": true,
+        "tabWidth": 4,
+        "trailingComma": "all",
+        "printWidth": 150,
+        "bracketSpacing": true,
+        "endOfLine": "auto"
+      }
+    ]
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".ts"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+	"format_version": "1.10.0",
+	"particle_effect": {
+		"description": {
+			"identifier": "maos:ice_magician_1_tick3",
+			"basic_render_parameters": {
+				"material": "particles_add",
+				"texture": "textures/particle/particles"
+			}
+		},
+		"components": {
+			"minecraft:emitter_rate_instant": {
+				"num_particles": 5
+			},
+			"minecraft:emitter_lifetime_once": {
+				"active_time": 1
+			},
+			"minecraft:emitter_shape_point": {},
+			"minecraft:particle_lifetime_expression": {
+				"max_lifetime": 1
+			},
+			"minecraft:particle_initial_speed": 10,
+			"minecraft:particle_motion_dynamic": {
+				"linear_drag_coefficient": 20
+			},
+			"minecraft:particle_appearance_billboard": {
+				"size": ["variable.emitter_age < 0.4 ? Math.min(0.05, Math.max(0, variable.emitter_age / 2 - 0.02)) : Math.max(0, 0.05 - variable.emitter_age / 2)", "variable.emitter_age < 0.4 ? Math.min(0.05, Math.max(0, variable.emitter_age - 0.04)) : Math.max(0, 0.05 - variable.emitter_age / 2)"],
+				"facing_camera_mode": "rotate_xyz",
+				"uv": {
+					"texture_width": 16,
+					"texture_height": 16,
+					"flipbook": {
+						"base_UV": [0, 0],
+						"size_UV": [1, 1],
+						"step_UV": [1, 0],
+						"frames_per_second": 32,
+						"max_frame": 8
+					}
+				}
+			},
+			"minecraft:particle_appearance_tinting": {
+				"color": {
+					"interpolant": "variable.emitter_age",
+					"gradient": {
+						"0.0": "#F0C7C7C7",
+						"0.43": "#1AFFFFFF",
+						"0.5": "#00FFFFFF"
+					}
+				}
+			}
+		}
+	}
+}

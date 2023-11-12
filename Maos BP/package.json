@@ -1,0 +1,56 @@
+{
+  "name": "@lkd/maos",
+  "version": "1.0.0",
+  "author": "namsic",
+  "description": "LKD Maos",
+  "main": "scripts/index.js",
+  "scripts": {
+    "build": "npm run clean && npx tsc -p tsconfig.json",
+    "build:bds": "npm run build:beh && npm run build:res",
+    "build:beh": "npm run clean:beh && npm run init:beh && npm run build && npm run copy:beh",
+    "build:res": "npm run clean:res && npm run init:res && npm run copy:res",
+    "build:github": "npm run build:beh:github && npm run build:res:github",
+    "build:beh:github": "npm run clean:beh:github && npm run init:beh:github && npm run build && npm run copy:beh:github",
+    "build:res:github": "npm run clean:res:github && npm run init:res:github && npm run copy:res:github",
+    "clean": "npx rimraf scripts",
+    "clean:beh": "npx rimraf \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_behavior_packs\\Maos BP\"",
+    "clean:res": "npx rimraf \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_resource_packs\\Maos RP\"",
+    "clean:beh:github": "npx rimraf \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos BP\"",
+    "clean:res:github": "npx rimraf \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos RP\"",
+    "init:beh": "mkdir \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_behavior_packs\\Maos BP\"",
+    "init:res": "mkdir \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_resource_packs\\Maos RP\"",
+    "init:beh:github": "mkdir \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos BP\"",
+    "init:res:github": "mkdir \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos RP\"",
+    "copy:beh": "cd ../../ && echo node_modules\\ > exclude.txt && echo dev\\ >> exclude.txt && echo .idea\\ >> exclude.txt && xcopy \".\\development_behavior_packs\\Maos BP\" \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_behavior_packs\\Maos BP\" /E /Y /exclude:exclude.txt && del exclude.txt",
+    "copy:res": "cd ../../ && xcopy \".\\development_resource_packs\\Maos RP\" \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_resource_packs\\Maos RP\" /E /Y",
+    "copy:beh:github": "cd ../../ && echo node_modules\\ > exclude.txt && echo scripts\\ >> exclude.txt && echo .idea\\ >> exclude.txt && xcopy \".\\development_behavior_packs\\Maos BP\" \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos BP\" /E /Y /exclude:exclude.txt && del exclude.txt",
+    "copy:res:github": "cd ../../ && xcopy \".\\development_resource_packs\\Maos RP\" \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos RP\" /E /Y",
+    "lint": "npx eslint .",
+    "lint:fix": "npx eslint . --fix",
+    "test": "npm run get:path && echo %npm_temp% && cd ."
+  },
+  "license": "ISC",
+  "engines": {
+    "node": "18"
+  },
+  "dependencies": {
+    "@minecraft/common": "^1.0.0",
+    "@minecraft/server": "^1.7.0-beta.1.20.40-stable",
+    "@minecraft/server-admin": "^1.0.0-beta.1.20.40-stable",
+    "@minecraft/server-editor": "^0.1.0-beta.1.20.40-stable",
+    "@minecraft/server-gametest": "^1.0.0-beta.1.20.40-stable",
+    "@minecraft/server-net": "^1.0.0-beta.1.20.40-stable",
+    "@minecraft/server-ui": "^1.2.0-beta.1.20.40-stable",
+    "@minecraft/vanilla-data": "^1.20.40"
+  },
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "eslint": "^8.38.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.7",
+    "typescript": "^5.0.3"
+  }
+}

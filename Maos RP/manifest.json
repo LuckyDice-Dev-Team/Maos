@@ -1,0 +1,28 @@
+{
+	"format_version": 2,
+	"metadata": {
+		"authors": [
+			"namsic"
+		]
+	},
+	"header": {
+		"name": "pack.name",
+		"description": "pack.description",
+		"min_engine_version": [1, 20, 10],
+		"uuid": "c2dfb197-6c71-40b8-abc1-b2a44ee16d14",
+		"version": [1, 0, 0]
+	},
+	"modules": [
+		{
+			"type": "resources",
+			"uuid": "bb1b7d56-c0e0-4bb2-8705-7b9f551fa119",
+			"version": [1, 0, 0]
+		}
+	],
+	"dependencies": [
+		{
+			"uuid": "597459da-6e8b-4a06-b4a2-de5426a61a3f",
+			"version": [1, 0, 0]
+		}
+	]
+}

@@ -1,0 +1,55 @@
+{
+	"format_version": 2,
+	"metadata": {
+		"authors": [
+			"namsic"
+		]
+	},
+	"header": {
+		"name": "pack.name",
+		"description": "pack.description",
+		"min_engine_version": [1, 20, 10],
+		"uuid": "597459da-6e8b-4a06-b4a2-de5426a61a3f",
+		"version": [1, 0, 0]
+	},
+	"modules": [
+		{
+			"type": "data",
+			"uuid": "2e2d54a9-a09a-4abc-a81e-d3ca5b9884cb",
+			"version": [1, 0, 0]
+		},
+		{
+			"type": "script",
+			"language": "javascript",
+			"uuid": "6bf633c3-7325-49cf-be86-a1021b6428e8",
+			"entry": "index.js",
+			"version": [1, 0, 0]
+		}
+	],
+	"dependencies": [
+		{
+			"uuid": "c2dfb197-6c71-40b8-abc1-b2a44ee16d14",
+			"version": [1, 0, 0]
+		},
+		{
+			"module_name": "@minecraft/server",
+			"version": "1.7.0-beta"
+		},
+		{
+			"module_name": "@minecraft/server-ui",
+			"version": "1.2.0-beta"
+		},
+		{
+			"module_name": "@minecraft/common",
+			"version": "1.0.0"
+		}
+		// {
+		// 	"module_name": "@minecraft/server-admin",
+		// 	"version": "1.0.0-beta"
+		// },
+		// {
+		// 	"module_name": "@minecraft/server-net",
+		// 	"version": "1.0.0-beta"
+		// }
+	]
+}

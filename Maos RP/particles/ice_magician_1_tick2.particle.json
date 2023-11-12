@@ -1,0 +1,47 @@
+{
+	"format_version": "1.10.0",
+	"particle_effect": {
+		"description": {
+			"identifier": "maos:ice_magician_1_tick2",
+			"basic_render_parameters": {
+				"material": "particles_add",
+				"texture": "textures/white"
+			}
+		},
+		"components": {
+			"minecraft:emitter_rate_instant": {
+				"num_particles": 16
+			},
+			"minecraft:emitter_lifetime_looping": {
+				"active_time": 1
+			},
+			"minecraft:emitter_shape_point": {},
+			"minecraft:particle_lifetime_expression": {
+				"max_lifetime": 1
+			},
+			"minecraft:particle_initial_speed": 10,
+			"minecraft:particle_motion_dynamic": {
+				"linear_drag_coefficient": 15
+			},
+			"minecraft:particle_appearance_billboard": {
+				"size": ["variable.emitter_age < 0.4 ? Math.min(0.03, variable.emitter_age / 2) : Math.max(0, 0.03 - (variable.emitter_age - 0.4) / 2)", "variable.emitter_age < 0.4 ? Math.min(0.03, variable.emitter_age / 2) : Math.max(0, 0.03 - (variable.emitter_age - 0.4) / 2)"],
+				"facing_camera_mode": "rotate_xyz",
+				"uv": {
+					"texture_width": 1,
+					"texture_height": 1,
+					"uv": [0, 0],
+					"uv_size": [1, 1]
+				}
+			},
+			"minecraft:particle_appearance_tinting": {
+				"color": {
+					"interpolant": "variable.emitter_age",
+					"gradient": {
+						"0.0": "#EE00DFFF",
+						"0.31": "#0000ABFF"
+					}
+				}
+			}
+		}
+	}
+}
