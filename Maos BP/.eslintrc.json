@@ -7,7 +7,7 @@
     "@typescript-eslint",
     "prettier"
   ],
-  "ignorePatterns": ["scripts/*.js"],
+  "ignorePatterns": ["**/*.js"],
   "rules": {
     "no-bitwise": "off",
     "no-await-in-loop": "off",

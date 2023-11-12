@@ -180,9 +180,6 @@ export const getHitLocations = (startLocation: Vector3, endLocation: Vector3) =>
         z: endLocation.z - startLocation.z,
     };
 
-    /**
-     * xyz 값이 각각 필요하므로 {@link getDistance} 함수 대신 직접 연산한다
-     */
     const distance = Math.sqrt(direction.x ** 2 + direction.y ** 2 + direction.z ** 2);
     const pointCount = Math.floor(distance / POINT_GAP);
 
