@@ -1,5 +1,13 @@
-import { Entity, Player } from "@minecraft/server";
+import { Entity, EntityInventoryComponent, Player } from "@minecraft/server";
 
 export const isPlayer = (entity: Entity): entity is Player => {
     return entity instanceof Player;
+};
+
+export const sendWarn = (player: Player, ...messages: unknown[]) => {
+    player.sendMessage(`§e${messages.map((message) => String(message)).join(" ")}`);
+};
+
+export const getInventoryComponent = (entity: Entity) => {
+    return entity.getComponent(EntityInventoryComponent.componentId) as EntityInventoryComponent;
 };

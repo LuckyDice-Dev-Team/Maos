@@ -73,7 +73,17 @@
       "lkd:keyboard0": {},
       "lkd:keyboard1": {},
       "lkd:keyboard2": {},
-      "lkd:keyboard3": {}
+      "lkd:keyboard3": {},
+      "lkd:mouse0": {},
+      "lkd:mouse1": {},
+      "lkd:mouse2": {},
+      "lkd:mouse3": {},
+      "lkd:mouse4": {},
+      "lkd:mouse5": {},
+      "lkd:wheel0": {},
+      "lkd:wheel1": {},
+      "lkd:wheel2": {},
+      "lkd:wheel3": {}
     }
   }
 }

@@ -1,10 +1,11 @@
-import { Dimension, Entity, MinecraftDimensionTypes, system, world } from "@minecraft/server";
+import { Dimension, Entity, MinecraftDimensionTypes, system, world, WorldInitializeAfterEvent } from "@minecraft/server";
+import { SystemProperty } from "./property";
+
+export const opList = ["namsic", "namsic6460"];
 
 export const overworld = world.getDimension(MinecraftDimensionTypes.overworld);
 export const dimensions: Record<string, Dimension> = {};
 dimensions[overworld.id] = overworld;
-
-export type SystemProperty = "log" | "projectile";
 
 let systemEntity: Entity;
 const getSystemEntity = () => {
@@ -30,22 +31,26 @@ export const getProperty = <T>(propertyId: SystemProperty): T | undefined => {
 };
 
 export const registerEvent = (func: () => void) => {
+    let worldInitializeCallback: (arg: WorldInitializeAfterEvent) => void;
+
     const checkSystemEntityAndRegister = () => {
         if (!getSystemEntity()) {
             return false;
         }
 
-        world.afterEvents.worldInitialize.unsubscribe(checkSystemEntityAndRegister);
+        world.afterEvents.worldInitialize.unsubscribe(worldInitializeCallback);
         system.runInterval(func);
 
         return true;
     };
 
-    world.afterEvents.worldInitialize.subscribe(() => {
+    worldInitializeCallback = () => {
         const runId = system.runInterval(() => {
             if (checkSystemEntityAndRegister()) {
                 system.clearRun(runId);
             }
         });
-    });
+    };
+
+    world.afterEvents.worldInitialize.subscribe(worldInitializeCallback);
 };
