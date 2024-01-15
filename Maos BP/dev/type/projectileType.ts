@@ -1,9 +1,9 @@
 import { Entity, Vector3 } from "@minecraft/server";
 
-export type ProjectileKey = "ice_magician:1";
+export type ProjectileType = "ice_magician:1";
 
 export interface ProjectileData {
-    key: ProjectileKey;
+    key: ProjectileType;
     offset: Vector3;
     moveDisPerLoop: number;
     life: number;

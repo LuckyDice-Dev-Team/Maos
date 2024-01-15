@@ -1,4 +1,4 @@
-import { ProjectileData, ProjectileFunction, ProjectileKey } from "../type/projectileType";
+import { ProjectileData, ProjectileFunction, ProjectileType } from "../type/projectileType";
 import { JobType } from "./jobData";
 import { dimensions } from "../system";
 
@@ -29,7 +29,7 @@ export const getProjectileData = (jobType: JobType, key: keyof (typeof projectil
 };
 
 export const projectileFunctions: {
-    [key in ProjectileKey]: ProjectileFunction;
+    [key in ProjectileType]: ProjectileFunction;
 } = {
     "ice_magician:1": {
         onTick: ({ dimensionId, location }) => {

@@ -1,5 +1,5 @@
 import { Entity } from "@minecraft/server";
-import { jobPropertyValues } from "../property";
+import { jobPropertyValues } from "../data/propertyData";
 import { JobType } from "../data/jobData";
 
 export const getJob = (entity: Entity) => {

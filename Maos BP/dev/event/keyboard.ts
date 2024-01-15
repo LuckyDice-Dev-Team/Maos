@@ -36,7 +36,7 @@ const onMouse = (player: Player, input: number) => {
     const job = jobs[jobType];
     switch (input) {
         case 1: {
-            job.leftClick(player);
+            job.useSkill(player, "left");
             break;
         }
 

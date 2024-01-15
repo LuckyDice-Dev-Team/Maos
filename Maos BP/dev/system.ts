@@ -1,5 +1,5 @@
 import { Dimension, Entity, MinecraftDimensionTypes, system, world, WorldInitializeAfterEvent } from "@minecraft/server";
-import { SystemProperty } from "./property";
+import { SystemProperty } from "./data/propertyData";
 
 export const opList = ["namsic", "namsic6460"];
 
