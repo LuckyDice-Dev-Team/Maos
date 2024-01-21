@@ -6,6 +6,14 @@ import { Promisable } from "../../type";
 import { SkillType } from "../../type/skillType";
 
 export default class IceMagician extends Job {
+    getMaxHp(): number {
+        return 0;
+    }
+
+    getMaxMn(): number {
+        return 0;
+    }
+
     getHpUse() {
         return 0;
     }

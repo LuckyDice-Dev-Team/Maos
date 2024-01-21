@@ -5,14 +5,24 @@ import { SkillType } from "./skillType";
 import { buffPropertyValues, CoolRemainProperty, CoolTimeoutProperty, statPropertyValues } from "../data/propertyData";
 
 export default abstract class Job {
-    constructor(public readonly jobType: JobType) {}
+    constructor(public readonly jobType: JobType) {
+
+    }
 
     getHp(player: Player): number {
         return (player.getDynamicProperty(statPropertyValues.hp) ?? 0) as number;
     }
 
+    setHp(player: Player, value: number) {
+        player.setDynamicProperty(statPropertyValues.hp, value);
+    }
+
     getMn(player: Player): number {
         return (player.getDynamicProperty(statPropertyValues.mn) ?? 0) as number;
+    }
+
+    setMn(player: Player, value: number) {
+        player.setDynamicProperty(statPropertyValues.mn, value);
     }
 
     protected getCoolRemainProperty(skillType: SkillType): CoolRemainProperty {
@@ -152,6 +162,8 @@ export default abstract class Job {
         return `§b${key}§r의 재사용이 가능합니다`;
     }
 
+    abstract getMaxHp(): number;
+    abstract getMaxMn(): number;
     abstract getHpUse(skillType: SkillType, player: Player): number;
     abstract getMnUse(skillType: SkillType, player: Player): number;
 
