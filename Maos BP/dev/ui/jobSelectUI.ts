@@ -5,7 +5,7 @@ import { keys } from "../utils/objectUtils";
 
 export default class JobSelectUI extends UI {
     public jobType?: JobType;
-    private jobTypeMap: Map<number, JobType> = new Map();
+    private jobTypeMap = new Map<number, JobType>();
 
     createForm() {
         const form = new ActionFormData().title("직업 선택");
@@ -22,7 +22,9 @@ export default class JobSelectUI extends UI {
         return form;
     }
 
-    processResult(result: ActionFormResponse) {
-        this.jobType = this.jobTypeMap.get(result.selection!);
+    processResult({ selection }: ActionFormResponse) {
+        if (typeof selection === "number") {
+            this.jobType = this.jobTypeMap.get(selection);
+        }
     }
 }

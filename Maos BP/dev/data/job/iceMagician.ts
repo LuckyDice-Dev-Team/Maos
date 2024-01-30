@@ -6,12 +6,20 @@ import { Promisable } from "../../type";
 import { SkillType } from "../../type/skillType";
 
 export default class IceMagician extends Job {
-    getMaxHp(): number {
-        return 0;
+    getMaxHp() {
+        return 1000;
     }
 
-    getMaxMn(): number {
-        return 0;
+    getMaxMn() {
+        return 200;
+    }
+
+    getHpRegen() {
+        return 15;
+    }
+
+    getMnRegen() {
+        return 10;
     }
 
     getHpUse() {
@@ -21,7 +29,7 @@ export default class IceMagician extends Job {
     getMnUse(skillType: SkillType) {
         switch (skillType) {
             case "left":
-                return 5;
+                return 20;
 
             case "right":
                 return 0;

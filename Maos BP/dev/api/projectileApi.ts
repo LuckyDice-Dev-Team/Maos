@@ -2,6 +2,8 @@ import { Player } from "@minecraft/server";
 import { Projectile, ProjectileData } from "../type/projectileType";
 import { calcVectors } from "../utils/mathUtils";
 import { getProperty, setProperty } from "../system";
+import { getTeam } from "./jobApi";
+import { TeamTag } from "../data/tag";
 
 export const spawnProjectile = (player: Player, projectileData: ProjectileData) => {
     const viewVector = player.getViewDirection();
@@ -17,6 +19,7 @@ export const spawnProjectile = (player: Player, projectileData: ProjectileData) 
     const projectile: Projectile = {
         ...projectileData,
         summoner: player.id,
+        team: getTeam(player) as TeamTag,
         dimensionId: player.dimension.id,
         location: calcVectors(player.getHeadLocation(), projectileData.offset, (value1, value2) => value1 + value2),
         vector: normalizedVector,

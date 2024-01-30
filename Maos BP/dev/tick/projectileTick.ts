@@ -32,6 +32,34 @@ const getBlockWithCache = (dimension: Dimension, location: Vector3, blockCache: 
     return block;
 };
 
+const filterTargets = (projectile: Projectile, targets: string[]) => {
+    const penetratingEntities = new Set(projectile.penetratingEntities);
+    const newPenetratingEntities: string[] = [];
+
+    if (!penetratingEntities.size) {
+        targets.splice(projectile.maxHitPerOnce);
+        projectile.penetratingEntities = [...targets];
+
+        return targets.length > 0;
+    }
+
+    let size = targets.length;
+    for (let i = 0; i < size; i++) {
+        const target = targets[i];
+        newPenetratingEntities.push(target);
+
+        if (penetratingEntities.has(target)) {
+            targets.splice(i--, 1);
+            size--;
+        }
+    }
+
+    targets.splice(projectile.maxHitPerOnce);
+    projectile.penetratingEntities = newPenetratingEntities;
+
+    return targets.length > 0;
+};
+
 registerEvent(() => {
     const deadProjectiles: Projectile[] = [];
     const blockCache = new Map<string, Block | undefined>();
@@ -54,9 +82,11 @@ registerEvent(() => {
                 continue;
             }
 
+            const nextLoaction = calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop);
+
             const hitLocations = getHitLocations(
                 location,
-                calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop),
+                nextLoaction,
             );
 
             const isXPositive = vector.x >= 0;
@@ -119,7 +149,7 @@ registerEvent(() => {
                 penetratingBlockLocation = null;
             }
 
-            location = calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop);
+            location = nextLoaction;
 
             // 블록 히트 검사
             if (blockHitData) {
@@ -146,9 +176,16 @@ registerEvent(() => {
 
             const targets = checkHit(projectile, location);
             if (targets.length) {
-                if (onHit(projectile, targets)) {
-                    deadProjectiles.push(projectile);
-                    break;
+                if (filterTargets(projectile, targets)) {
+                    const deadByHitEvent = onHit(projectile, targets);
+
+                    projectile.entityPenetrateRemain -= targets.length;
+                    const deadByPenetrateLimit = projectile.entityPenetrateRemain < 0;
+
+                    if (deadByHitEvent || deadByPenetrateLimit) {
+                        deadProjectiles.push(projectile);
+                        break;
+                    }
                 }
             } else {
                 projectile.penetratingEntities = [];
@@ -176,7 +213,7 @@ registerEvent(() => {
     setProperty("projectile", JSON.stringify(projectiles));
 
     const took = Date.now() - start;
-    if (took > 1) {
+    if (took > 5) {
         console.warn(`Took ${Date.now() - start}ms`);
     }
 });

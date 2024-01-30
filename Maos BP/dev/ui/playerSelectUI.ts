@@ -46,24 +46,25 @@ export default class PlayerSelectUI extends UI {
     createForm() {
         const playerName = this.player.name;
         const form = new ActionFormData().title("플레이어 선택").button("선택 완료");
-        const targets = overworld.getPlayers(this.option.queryOption);
+        const targets = overworld.getPlayers(this.option.queryOption).filter((target) => {
+            const { name: targetName } = target;
+
+            // 중복 선택이 활성화되있거나 선택되지 않았어야 하고 && 날 제외하는게 아니거나 내가 대상이 아니어야 함
+            return (
+                (this.option.enableDuplicateSelect || !this.selectedList.includes(targetName)) &&
+                (!this.option.exceptSelf || targetName !== playerName)
+            );
+        });
 
         this.nameMap.clear();
-        this.playerMap.clear();
 
         for (let i = 1; i <= targets.length; i++) {
             const target = targets[i - 1];
             const { name: targetName } = target;
 
-            if (
-                (!this.option.enableDuplicateSelect && this.selectedList.includes(targetName)) ||
-                (this.option.exceptSelf && targetName === playerName)
-            ) {
-                continue;
-            }
-
             this.nameMap.set(i, targetName);
             this.playerMap.set(targetName, target);
+            console.warn("NameMap", i, targetName);
 
             const selectCount = this.selectCountMap.get(targetName);
             if (selectCount) {
@@ -91,7 +92,7 @@ export default class PlayerSelectUI extends UI {
         const name = this.nameMap.getOrThrow(selection!);
         this.selectedList.push(name);
 
-        if (this.option.maxCount <= this.nameMap.size) {
+        if (this.option.maxCount > this.nameMap.size) {
             await this.show();
         }
     }

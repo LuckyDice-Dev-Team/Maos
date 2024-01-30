@@ -1,6 +1,6 @@
 import { Player, world } from "@minecraft/server";
 import { getInventoryComponent, isPlayer } from "../utils/entityUtils";
-import { getJob } from "../api/jobApi";
+import { getJobType } from "../api/jobApi";
 import { jobs } from "../data/jobData";
 
 world.beforeEvents.dataDrivenEntityTriggerEvent.subscribe(({ entity, id }) => {
@@ -22,7 +22,7 @@ world.beforeEvents.dataDrivenEntityTriggerEvent.subscribe(({ entity, id }) => {
 });
 
 const onMouse = (player: Player, input: number) => {
-    const jobType = getJob(player);
+    const jobType = getJobType(player);
     if (!jobType) {
         return;
     }
