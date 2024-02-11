@@ -1,7 +1,7 @@
 import { Dimension, Entity, MinecraftDimensionTypes, system, world, WorldInitializeAfterEvent } from "@minecraft/server";
 import { SystemProperty } from "./data/propertyData";
 
-export const opList = ["namsic", "namsic6460"];
+export const opList = ["namsic", "namsic6460", "Korean SL1"];
 
 export const overworld = world.getDimension(MinecraftDimensionTypes.overworld);
 export const dimensions: Record<string, Dimension> = {};

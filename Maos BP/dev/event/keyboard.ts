@@ -28,7 +28,7 @@ const onMouse = (player: Player, input: number) => {
     }
 
     const inventoryComponent = getInventoryComponent(player);
-    const currentItem = inventoryComponent.container.getItem(player.selectedSlot);
+    const currentItem = inventoryComponent.container?.getItem(player.selectedSlot);
     if (!currentItem?.getTags().includes("skill")) {
         return;
     }

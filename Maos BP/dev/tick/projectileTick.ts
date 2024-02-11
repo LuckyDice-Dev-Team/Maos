@@ -82,12 +82,8 @@ registerEvent(() => {
                 continue;
             }
 
-            const nextLoaction = calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop);
-
-            const hitLocations = getHitLocations(
-                location,
-                nextLoaction,
-            );
+            const nextLocation = calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop);
+            const hitLocations = getHitLocations(location, nextLocation);
 
             const isXPositive = vector.x >= 0;
             const isYPositive = vector.y >= 0;
@@ -149,7 +145,7 @@ registerEvent(() => {
                 penetratingBlockLocation = null;
             }
 
-            location = nextLoaction;
+            location = nextLocation;
 
             // 블록 히트 검사
             if (blockHitData) {

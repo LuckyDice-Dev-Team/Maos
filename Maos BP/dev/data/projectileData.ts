@@ -6,7 +6,7 @@ import { calcVectorLength, calcVectors } from "../utils/mathUtils";
 import OptionalMap from "../object/optionalMap";
 import { TeamTag } from "./tag";
 
-const projectileDatas = {
+const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
     ice_magician: {
         1: {
             key: "ice_magician:1",
@@ -24,9 +24,10 @@ const projectileDatas = {
             maxHitPerOnce: 1,
         } as ProjectileData,
     },
-};
+    archer: {},
+} as const;
 
-export const getProjectileData = (jobType: JobType, key: keyof (typeof projectileDatas)[JobType]) => {
+export const getProjectileData = (jobType: JobType, key: number) => {
     const projectileData = projectileDatas[jobType][key];
     if (!projectileData) {
         throw new Error(`Unknown key - ${jobType} ${key}`);
