@@ -1,31 +1,84 @@
-import { Player, system } from "@minecraft/server";
+import { Entity, EntityHealthComponent, Player, system } from "@minecraft/server";
 import { Promisable } from "../type";
 import { JobType } from "../data/jobData";
 import { SkillType } from "./skillType";
-import { buffPropertyValues, CoolRemainProperty, CoolTimeoutProperty, statPropertyValues } from "../data/propertyData";
+import { CoolRemainProperty, CoolTimeoutProperty, debuffPropertyValues, statPropertyValues } from "../data/propertyData";
 import { convertListToObject } from "../utils/objectUtils";
+import { getDebuffTime } from "../api/buffApi";
+import { isPlayer } from "../utils/entityUtils";
 
-const failReasons = ["debuff", "mn", "hp", "cool"] as const;
+const failReasons = ["stun", "mn", "hp", "cool"] as const;
 export type FailReasonType = (typeof failReasons)[number];
 export const failReasonValues = convertListToObject(failReasons);
 
 export default abstract class Job {
     constructor(public readonly jobType: JobType) {}
 
-    getHp(player: Player): number {
-        return (player.getDynamicProperty(statPropertyValues.hp) ?? 0) as number;
+    getHp(entity: Entity): number {
+        return (entity.getDynamicProperty(statPropertyValues.hp) ?? 0) as number;
     }
 
-    setHp(player: Player, value: number) {
-        player.setDynamicProperty(statPropertyValues.hp, value);
+    setHp(entity: Entity, value: number) {
+        const fixedValue = Math.max(value, 0);
+        entity.setDynamicProperty(statPropertyValues.hp, fixedValue);
+
+        if (value > 0) {
+            entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(value / 10);
+        }
+
+        if (this.getMaxHp(entity) > fixedValue && !entity.getDynamicProperty(statPropertyValues.hpInterval)) {
+            const interval = system.runInterval(() => {
+                const maxHp = this.getMaxHp(entity);
+                const newValue = Math.min(this.getHp(entity) + this.getHpRegen(entity), maxHp);
+                entity.setDynamicProperty(statPropertyValues.hp, newValue);
+
+                if (newValue > 0) {
+                    entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(newValue / 10);
+                }
+
+                if (newValue === maxHp) {
+                    entity.setDynamicProperty(statPropertyValues.hpInterval, undefined);
+                    system.clearRun(interval);
+                }
+            }, 20);
+
+            entity.setDynamicProperty(statPropertyValues.hpInterval, interval);
+        }
     }
 
-    getMn(player: Player): number {
-        return (player.getDynamicProperty(statPropertyValues.mn) ?? 0) as number;
+    getMn(entity: Entity): number {
+        return (entity.getDynamicProperty(statPropertyValues.mn) ?? 0) as number;
     }
 
-    setMn(player: Player, value: number) {
-        player.setDynamicProperty(statPropertyValues.mn, value);
+    setMn(entity: Entity, value: number) {
+        const fixedValue = Math.max(value, 0);
+        entity.setDynamicProperty(statPropertyValues.mn, fixedValue);
+
+        const playerYn = isPlayer(entity);
+        if (playerYn) {
+            system.run(() => {
+                entity.addLevels(fixedValue - entity.level);
+            });
+        }
+
+        if (this.getMaxMn(entity) > fixedValue && !entity.getDynamicProperty(statPropertyValues.mnInterval)) {
+            const interval = system.runInterval(() => {
+                const maxMn = this.getMaxMn(entity);
+                const newValue = Math.min(this.getMn(entity) + this.getMnRegen(entity), maxMn);
+
+                entity.setDynamicProperty(statPropertyValues.mn, newValue);
+                if (playerYn) {
+                    entity.addLevels(newValue - entity.level);
+                }
+
+                if (newValue === maxMn) {
+                    entity.setDynamicProperty(statPropertyValues.mnInterval, undefined);
+                    system.clearRun(interval);
+                }
+            }, 20);
+
+            entity.setDynamicProperty(statPropertyValues.mnInterval, interval);
+        }
     }
 
     protected getCoolRemainProperty(skillType: SkillType): CoolRemainProperty {
@@ -83,9 +136,9 @@ export default abstract class Job {
             return [failReasonValues.hp, value];
         }
 
-        value = player.getDynamicProperty(buffPropertyValues.debuffCount) as number;
+        value = getDebuffTime(player, debuffPropertyValues.stun);
         if (value) {
-            return [failReasonValues.debuff, value];
+            return [failReasonValues.stun, value];
         }
 
         return [null, 0];
@@ -125,9 +178,9 @@ export default abstract class Job {
                     break;
                 }
 
-                case failReasonValues.debuff: {
-                    divideCount = 20;
-                    invalidMessage = "디버프로 인해 사용 불가. 이후 디버프 추가 시 적용 예정";
+                case failReasonValues.stun: {
+                    divideCount = 18;
+                    invalidMessage = `§c§l현재 기절상태입니다!`;
 
                     break;
                 }
@@ -214,10 +267,10 @@ export default abstract class Job {
         return `§b${this.getKeyName(skillType)}§r의 재사용이 가능합니다`;
     }
 
-    abstract getMaxHp(player: Player): number;
-    abstract getMaxMn(player: Player): number;
-    abstract getHpRegen(player: Player): number;
-    abstract getMnRegen(player: Player): number;
+    abstract getMaxHp(entity: Entity): number;
+    abstract getMaxMn(entity: Entity): number;
+    abstract getHpRegen(entity: Entity): number;
+    abstract getMnRegen(entity: Entity): number;
 
     // 스킬 종류는 필수고, 플레이어는 필수가 아니어서 순서를 바꿔놓는다
     abstract getHpUse(skillType: SkillType, player: Player): number;

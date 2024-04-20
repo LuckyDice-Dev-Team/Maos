@@ -25,8 +25,8 @@
     "copy:res": "cd ../../ && xcopy \".\\development_resource_packs\\Maos RP\" \"C:\\Users\\%USERNAME%\\Documents\\bds\\development_resource_packs\\Maos RP\" /E /Y",
     "copy:beh:github": "cd ../../ && echo node_modules\\ > exclude.txt && echo scripts\\ >> exclude.txt && echo .idea\\ >> exclude.txt && xcopy \".\\development_behavior_packs\\Maos BP\" \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos BP\" /E /Y /exclude:exclude.txt && del exclude.txt",
     "copy:res:github": "cd ../../ && xcopy \".\\development_resource_packs\\Maos RP\" \"C:\\Users\\%USERNAME%\\Documents\\Github\\Maos\\Maos RP\" /E /Y",
-    "lint": "npx eslint .",
-    "lint:fix": "npx eslint . --fix",
+    "lint": "npx eslint **/*.ts",
+    "lint:fix": "npx eslint **/*.ts --fix",
     "test": "npm run get:path && echo %npm_temp% && cd ."
   },
   "license": "ISC",
@@ -35,11 +35,7 @@
   },
   "dependencies": {
     "@minecraft/common": "^1.0.0",
-    "@minecraft/server": "^1.9.0-beta.1.20.60-stable",
-    "@minecraft/server-admin": "^1.0.0-beta.1.20.40-stable",
-    "@minecraft/server-editor": "^0.1.0-beta.1.20.40-stable",
-    "@minecraft/server-gametest": "^1.0.0-beta.1.20.40-stable",
-    "@minecraft/server-net": "^1.0.0-beta.1.20.40-stable",
+    "@minecraft/server": "^1.10.0-beta.1.20.70-stable",
     "@minecraft/server-ui": "^1.2.0-beta.1.20.40-stable",
     "@minecraft/vanilla-data": "^1.20.40"
   },
@@ -51,6 +47,6 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.7",
-    "typescript": "^5.0.3"
+    "typescript": "5.1.6"
   }
 }

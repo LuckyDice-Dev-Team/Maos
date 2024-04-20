@@ -1,24 +1,28 @@
 import { Entity } from "@minecraft/server";
 import { jobPropertyValues, systemPropertyValues } from "../data/propertyData";
-import { JobType } from "../data/jobData";
+import { jobs, JobType } from "../data/jobData";
 import { systemTagValues, TeamTag } from "../data/tag";
 
 export const getJobType = (entity: Entity) => {
     return entity.getDynamicProperty(jobPropertyValues.job) as JobType | undefined;
 };
 
-export const setJob = (entity: Entity, job: JobType | undefined) => {
-    console.warn(`Set job ${entity.nameTag} ${job}`);
+export const setJob = (entity: Entity, jobType: JobType | undefined) => {
+    console.warn(`Set job ${entity.nameTag} ${jobType}`);
 
     if (!getTeam(entity)) {
         console.warn("직업 설정 전, 팀 지정부터 해주세요");
         return;
     }
 
-    entity.setDynamicProperty(jobPropertyValues.job, job);
+    entity.setDynamicProperty(jobPropertyValues.job, jobType);
 
-    if (job) {
+    if (jobType) {
         entity.addTag(systemTagValues.game);
+
+        const job = jobs[jobType];
+        job.setHp(entity, job.getMaxHp(entity));
+        job.setMn(entity, job.getMaxMn(entity));
     } else {
         entity.removeTag(systemTagValues.game);
     }

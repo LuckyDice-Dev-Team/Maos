@@ -74,7 +74,7 @@ registerEvent(() => {
             }
 
             const { key, dimensionId, vector, moveDisPerLoop, blockPenetrateRemain } = projectile;
-            const { onTick, checkHit, onHit } = projectileFunctions[key];
+            const { onTick, onPath, checkHit, onHit } = projectileFunctions[key];
             let { location, penetratingBlock, penetratingBlockLocation } = projectile;
 
             if (onTick(projectile)) {
@@ -82,8 +82,9 @@ registerEvent(() => {
                 continue;
             }
 
+            let paths: Vector3[] = [];
             const nextLocation = calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop);
-            const hitLocations = getHitLocations(location, nextLocation);
+            const hitLocations = getHitLocations(location, nextLocation, paths);
 
             const isXPositive = vector.x >= 0;
             const isYPositive = vector.y >= 0;
@@ -158,6 +159,17 @@ registerEvent(() => {
                     const penetrateRemain = blockPenetrateRemain[typeId];
                     if (!penetrateRemain) {
                         deadProjectiles.push(projectile);
+
+                        if (onPath) {
+                            paths = paths.filter(
+                                (path) =>
+                                    path.x >= hitLocation.x === isXPositive &&
+                                    path.y >= hitLocation.y === isYPositive &&
+                                    path.z >= hitLocation.z === isZPositive,
+                            );
+                            onPath(projectile, paths, hitLocation);
+                        }
+
                         break;
                     }
 
@@ -169,11 +181,13 @@ registerEvent(() => {
 
             projectile.penetratingBlock = penetratingBlock;
             projectile.penetratingBlockLocation = penetratingBlockLocation;
+            onPath?.(projectile, paths, undefined);
 
-            const targets = checkHit(projectile, location);
+            const targetHitLocations: Record<string, Vector3> = {};
+            const targets = checkHit(projectile, location, targetHitLocations);
             if (targets.length) {
                 if (filterTargets(projectile, targets)) {
-                    const deadByHitEvent = onHit(projectile, targets);
+                    const deadByHitEvent = onHit(projectile, targets, targetHitLocations);
 
                     projectile.entityPenetrateRemain -= targets.length;
                     const deadByPenetrateLimit = projectile.entityPenetrateRemain < 0;
@@ -210,6 +224,6 @@ registerEvent(() => {
 
     const took = Date.now() - start;
     if (took > 5) {
-        console.warn(`Took ${Date.now() - start}ms`);
+        console.warn(`Took ${Date.now() - start}ms in projectileTick`);
     }
 });

@@ -1,10 +1,14 @@
 import { CheckHitOption, Projectile, ProjectileData, ProjectileFunction, ProjectileType } from "../type/projectileType";
 import { JobType } from "./jobData";
 import { dimensions, overworld } from "../system";
-import { Vector, Vector3 } from "@minecraft/server";
+import { Vector, Vector3, world } from "@minecraft/server";
 import { calcVectorLength, calcVectors } from "../utils/mathUtils";
 import OptionalMap from "../object/optionalMap";
 import { TeamTag } from "./tag";
+import { damage } from "../api/damageApi";
+import { setDebuff } from "../api/buffApi";
+import { debuffPropertyValues } from "./propertyData";
+import { getCenter } from "../utils/entityUtils";
 
 const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
     ice_magician: {
@@ -17,15 +21,26 @@ const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
             },
             moveDisPerLoop: 1.5,
             life: 20,
-            entityPenetrateRemain: 1,
-            blockPenetrateRemain: {
-                "minecraft:glass": 1,
-            },
+            entityPenetrateRemain: 0,
+            blockPenetrateRemain: {},
             maxHitPerOnce: 1,
-        } as ProjectileData,
+        },
+        2: {
+            key: "ice_magician:2",
+            offset: {
+                x: 0,
+                y: 0.125,
+                z: 0,
+            },
+            moveDisPerLoop: 1.1,
+            life: 15,
+            entityPenetrateRemain: 0,
+            blockPenetrateRemain: {},
+            maxHitPerOnce: 1,
+        },
     },
     archer: {},
-} as const;
+};
 
 export const getProjectileData = (jobType: JobType, key: number) => {
     const projectileData = projectileDatas[jobType][key];
@@ -36,9 +51,9 @@ export const getProjectileData = (jobType: JobType, key: number) => {
     return projectileData;
 };
 
-const getDefaultCheckHit = (options: CheckHitOption) => {
-    return function ({ location: startLocation, team, summoner }: Projectile, endLocation: Vector3) {
-        const payload: string[] = [];
+const getDefaultCheckHit = ({ includeAlly, includeEnemy, includeSelf, radius }: CheckHitOption) => {
+    return function ({ location: startLocation, team, summoner }: Projectile, endLocation: Vector3, targetHitLocations: Record<string, Vector3>) {
+        const hitEntities: string[] = [];
         const distanceMap = new OptionalMap<string, number>();
 
         const lineVector = calcVectors(startLocation, endLocation, (x, y) => y - x);
@@ -48,17 +63,18 @@ const getDefaultCheckHit = (options: CheckHitOption) => {
         const midLocation = calcVectors(startLocation, endLocation, (v1, v2) => (v2 + v1) / 2);
         const excludeTags: TeamTag[] = [];
 
-        if (!options.includeAlly) {
+        if (!includeAlly) {
             excludeTags.push(team);
         }
-        if (!options.includeEnemy) {
+
+        if (!includeEnemy) {
             excludeTags.push(team === "blue" ? "red" : "blue");
         }
 
         const possibleEntities = overworld.getEntities({
             excludeTags,
             location: midLocation,
-            maxDistance: totalDistance / 2 + options.radius,
+            maxDistance: totalDistance / 2 + radius + 1,
         });
 
         if (!possibleEntities.length) {
@@ -66,26 +82,35 @@ const getDefaultCheckHit = (options: CheckHitOption) => {
         }
 
         for (const entity of possibleEntities) {
-            if (!options.includeSelf && entity.id === summoner) {
+            if (!includeSelf && entity.id === summoner) {
                 continue;
             }
 
             const entityLocation = { ...entity.location };
-            entityLocation.y += 0.9375;
+            const yDiff = entity.getHeadLocation().y - entityLocation.y;
+            entityLocation.y += yDiff * 0.6;
 
-            const tempVector = Vector.cross(
+            const crossVector = Vector.cross(
                 calcVectors(entityLocation, startLocation, (v1, v2) => v1 - v2),
                 normalizedLineVector,
             );
 
-            const distanceToLine = calcVectorLength(tempVector) / calcVectorLength(normalizedLineVector);
-            if (distanceToLine <= options.radius) {
-                distanceMap.set(entity.id, Vector.distance(entity.location, startLocation));
-                payload.push(entity.id);
+            const distanceToLine = calcVectorLength(crossVector) / calcVectorLength(normalizedLineVector);
+            if (distanceToLine <= radius) {
+                distanceMap.set(entity.id, Vector.distance(entityLocation, startLocation));
+                hitEntities.push(entity.id);
+
+                const targetHitLocation = calcVectors(startLocation, normalizedLineVector, (value1, value2) => value1 + value2 * radius);
+                const offsetPercent = calcVectorLength(Vector.subtract(targetHitLocation, entityLocation)) / radius;
+                targetHitLocations[entity.id] = calcVectors(
+                    startLocation,
+                    normalizedLineVector,
+                    (value1, value2) => value1 + value2 * radius * 1.5 * offsetPercent,
+                );
             }
         }
 
-        return payload.sort((a, b) => distanceMap.getOrThrow(a) - distanceMap.getOrThrow(b));
+        return hitEntities.sort((a, b) => distanceMap.getOrThrow(a) - distanceMap.getOrThrow(b));
     };
 };
 
@@ -102,14 +127,48 @@ export const projectileFunctions: {
             return false;
         },
         checkHit: getDefaultCheckHit({
-            radius: 1.3,
+            radius: 1.15,
             includeSelf: false,
             includeAlly: false,
             includeEnemy: true,
         }),
-        onHit: (_projectile, targets) => {
-            console.warn(`Hit ${targets.join(", ")}`);
+        onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
+            damage(summoner, target, 30);
+            dimensions[dimensionId].spawnParticle("maos:common_hit", targetHitLocations[target]);
+
+            return true;
+        },
+    },
+    "ice_magician:2": {
+        onTick: () => {
             return false;
+        },
+        onPath: ({ dimensionId }, locations) => {
+            const dimension = dimensions[dimensionId];
+            locations.forEach((location) => {
+                dimension.spawnParticle("maos:ice_magician_2_tick1", location);
+                dimension.spawnParticle("maos:ice_magician_2_tick2", location);
+            });
+        },
+        checkHit: getDefaultCheckHit({
+            radius: 1.0,
+            includeSelf: false,
+            includeAlly: false,
+            includeEnemy: true,
+        }),
+        onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
+            damage(summoner, target, 50);
+
+            const entity = world.getEntity(target);
+            if (entity) {
+                setDebuff(entity, debuffPropertyValues.pin, 30); // 파티클 시간과 연계
+
+                const dimension = dimensions[dimensionId];
+                dimension.spawnParticle("maos:common_hit", targetHitLocations[target]);
+                dimension.spawnParticle("maos:ice_magician_2_hit", getCenter(entity));
+            }
+
+            return true;
         },
     },
 } as const;

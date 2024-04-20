@@ -2,6 +2,8 @@ import { world } from "@minecraft/server";
 import { opList } from "../system";
 import AdminUI from "../ui/adminUI";
 import { sendWarn } from "../utils/entityUtils";
+import { setDebuff } from "../api/buffApi";
+import { debuffPropertyValues } from "../data/propertyData";
 
 world.afterEvents.itemUse.subscribe(({ source, itemStack }) => {
     if (opList.includes(source.name)) {
@@ -17,6 +19,16 @@ world.afterEvents.itemUse.subscribe(({ source, itemStack }) => {
                     })
                     .catch(console.error);
 
+                return;
+            }
+
+            case "minecraft:ice": {
+                setDebuff(source, debuffPropertyValues.pin, 50);
+                return;
+            }
+
+            case "minecraft:blue_ice": {
+                setDebuff(source, debuffPropertyValues.stun, 50);
                 return;
             }
 

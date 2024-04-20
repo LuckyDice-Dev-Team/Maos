@@ -64,7 +64,6 @@ export default class PlayerSelectUI extends UI {
 
             this.nameMap.set(i, targetName);
             this.playerMap.set(targetName, target);
-            console.warn("NameMap", i, targetName);
 
             const selectCount = this.selectCountMap.get(targetName);
             if (selectCount) {

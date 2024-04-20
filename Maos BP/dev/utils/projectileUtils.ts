@@ -173,7 +173,7 @@ const addHitBlocks = (startLocation: Vector3, endLocation: Vector3, hitLocations
     }
 };
 
-export const getHitLocations = (startLocation: Vector3, endLocation: Vector3) => {
+export const getHitLocations = (startLocation: Vector3, endLocation: Vector3, paths: Vector3[]) => {
     const direction = {
         x: endLocation.x - startLocation.x,
         y: endLocation.y - startLocation.y,
@@ -186,13 +186,18 @@ export const getHitLocations = (startLocation: Vector3, endLocation: Vector3) =>
     const points = [startLocation];
     for (let i = 1; i <= pointCount; i++) {
         const multiplier = (i * POINT_GAP) / distance;
-        points.push({
+        const location = {
             x: startLocation.x + multiplier * direction.x,
             y: startLocation.y + multiplier * direction.y,
             z: startLocation.z + multiplier * direction.z,
-        });
+        };
+
+        points.push(location);
+        paths.push(location);
     }
+
     points.push(endLocation);
+    paths.push(endLocation);
 
     const hitLocations = [startLocation];
     for (let i = 0; i <= pointCount; i++) {

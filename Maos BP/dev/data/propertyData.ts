@@ -13,8 +13,15 @@ export type CoolRemainProperty = (typeof coolRemainProperties)[number];
 const coolTimeoutProperties = ["timeout_left", "timeout_right", "timeout_1", "timeout_2", "timeout_3", "timeout_4"];
 export type CoolTimeoutProperty = (typeof coolTimeoutProperties)[number];
 
-const statProperties = ["hp", "mn"] as const;
+const statProperties = ["hp", "mn", "hpInterval", "mnInterval"] as const;
 export const statPropertyValues = convertListToObject(statProperties);
 
-const buffProperties = ["debuffCount"] as const;
-export const buffPropertyValues = convertListToObject(buffProperties);
+const debuffProperties = ["stun", "pin"] as const;
+export type DebuffProperty = (typeof debuffProperties)[number];
+export const debuffPropertyValues = convertListToObject(debuffProperties);
+
+const debuffTimeoutProperties = ["stunTimeout", "pinTimeout"] as const;
+export type DebuffTimeoutProperty = (typeof debuffTimeoutProperties)[number];
+
+const shieldProperties = ["shield", "shieldInterval"] as const;
+export const shieldPropertyValues = convertListToObject(shieldProperties);

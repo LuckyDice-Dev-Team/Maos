@@ -32,7 +32,7 @@ export default class IceMagician extends Job {
                 return 20;
 
             case "right":
-                return 0;
+                return 50;
 
             case "key1":
                 return 0;
@@ -54,7 +54,7 @@ export default class IceMagician extends Job {
                 return 20;
 
             case "right":
-                return 0;
+                return 100;
 
             case "key1":
                 return 0;
@@ -74,7 +74,9 @@ export default class IceMagician extends Job {
         spawnProjectile(player, getProjectileData(this.jobType, 1));
     }
 
-    rightClick(player: Player): Promisable<void> {}
+    rightClick(player: Player): Promisable<void> {
+        spawnProjectile(player, getProjectileData(this.jobType, 2));
+    }
 
     key1(player: Player): Promisable<void> {}
 

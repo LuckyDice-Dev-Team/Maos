@@ -40,6 +40,11 @@ const onMouse = (player: Player, input: number) => {
             break;
         }
 
+        case 2: {
+            job.useSkill(player, "right");
+            break;
+        }
+
         default:
             return;
     }

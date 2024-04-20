@@ -1,5 +1,4 @@
 import "./tick/projectileTick";
-import "./tick/statTick";
 import "./event/keyboard";
 import "./event/playerUseItem";
 import { system } from "@minecraft/server";

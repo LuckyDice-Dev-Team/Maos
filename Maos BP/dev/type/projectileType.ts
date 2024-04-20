@@ -1,7 +1,7 @@
 import { Vector3 } from "@minecraft/server";
 import { TeamTag } from "../data/tag";
 
-export type ProjectileType = "ice_magician:1";
+export type ProjectileType = "ice_magician:1" | "ice_magician:2";
 
 export interface ProjectileData {
     key: ProjectileType;
@@ -15,8 +15,9 @@ export interface ProjectileData {
 
 export interface ProjectileFunction {
     onTick: (projectile: Projectile) => boolean;
-    checkHit: (projectile: Projectile, endLocation: Vector3) => string[];
-    onHit: (projectile: Projectile, targets: string[]) => boolean;
+    onPath?: (projectile: Projectile, locations: Vector3[], deadLocation?: Vector3) => void;
+    checkHit: (projectile: Projectile, endLocation: Vector3, targetHitLocations: Record<string, Vector3>) => string[];
+    onHit: (projectile: Projectile, targets: string[], targetHitLocations: Record<string, Vector3>) => boolean;
 }
 
 export interface Projectile extends ProjectileData {

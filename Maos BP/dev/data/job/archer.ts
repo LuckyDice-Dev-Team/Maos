@@ -69,7 +69,7 @@ export default class Archer extends Job {
     }
 
     leftClick(player: Player) {
-        player.sendMessage('아처 좌클릭 스킬 사용')
+        player.sendMessage("아처 좌클릭 스킬 사용");
     }
 
     rightClick(player: Player): Promisable<void> {}
