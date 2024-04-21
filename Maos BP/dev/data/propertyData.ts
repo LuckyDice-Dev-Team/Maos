@@ -1,6 +1,6 @@
 import { convertListToObject } from "../utils/objectUtils";
 
-const systemProperties = ["log", "projectile", "team"] as const;
+const systemProperties = ["log", "projectile", "team", "runIds"] as const;
 export type SystemProperty = (typeof systemProperties)[number];
 export const systemPropertyValues = convertListToObject(systemProperties);
 

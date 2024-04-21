@@ -1,4 +1,4 @@
-import { Entity, EntityInventoryComponent, Player, world } from "@minecraft/server";
+import { Entity, EntityInventoryComponent, Player } from "@minecraft/server";
 
 export const isPlayer = (entity?: Entity): entity is Player => {
     return entity instanceof Player;

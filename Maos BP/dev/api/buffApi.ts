@@ -2,6 +2,7 @@ import { DebuffProperty, DebuffTimeoutProperty } from "../data/propertyData";
 import { Entity, system } from "@minecraft/server";
 import { InputPermission, setInputPermission } from "../utils/commandUtils";
 import { isPlayer } from "../utils/entityUtils";
+import { clearRun, runInterval, run } from "../system";
 
 export const getDebuffTime = (entity: Entity, debuff: DebuffProperty) => {
     const value = entity.getDynamicProperty(debuff);
@@ -65,14 +66,18 @@ export const setDebuff = (entity: Entity | undefined, debuff: DebuffProperty, ti
 
     const debuffTime = Math.max(getDebuffTime(entity, debuff), time);
     entity.setDynamicProperty(debuff, debuffTime + system.currentTick);
-    system.run(() => {
+    run(entity, () => {
         setInputPermission(entity, getCurrentInputPermission(entity));
         setDebuffActionbar(entity);
     });
 
-    const interval = system.runInterval(() => {
-        setDebuffActionbar(entity);
-    }, 20);
+    const interval = runInterval(
+        entity,
+        () => {
+            setDebuffActionbar(entity);
+        },
+        20,
+    );
 
     const timeoutProperty = getTimeoutProperty(debuff);
     if (!timeoutProperty) {
@@ -89,7 +94,7 @@ export const setDebuff = (entity: Entity | undefined, debuff: DebuffProperty, ti
         setInputPermission(entity, getCurrentInputPermission(entity));
         setDebuffActionbar(entity);
 
-        system.clearRun(interval);
+        clearRun(entity, interval);
     }, debuffTime);
 
     entity.setDynamicProperty(timeoutProperty, timeout);

@@ -18,9 +18,16 @@ export const setJob = (entity: Entity, jobType: JobType | undefined) => {
     entity.setDynamicProperty(jobPropertyValues.job, jobType);
 
     if (jobType) {
+        const job = jobs[jobType];
+
         entity.addTag(systemTagValues.game);
 
-        const job = jobs[jobType];
+        entity.removeEffect("health_boost");
+        entity.addEffect("health_boost", 20000000, {
+            amplifier: 44,
+            showParticles: false,
+        });
+
         job.setHp(entity, job.getMaxHp(entity));
         job.setMn(entity, job.getMaxMn(entity));
     } else {

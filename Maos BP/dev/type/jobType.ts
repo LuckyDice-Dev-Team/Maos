@@ -6,6 +6,7 @@ import { CoolRemainProperty, CoolTimeoutProperty, debuffPropertyValues, statProp
 import { convertListToObject } from "../utils/objectUtils";
 import { getDebuffTime } from "../api/buffApi";
 import { isPlayer } from "../utils/entityUtils";
+import { clearRun, runInterval } from "../system";
 
 const failReasons = ["stun", "mn", "hp", "cool"] as const;
 export type FailReasonType = (typeof failReasons)[number];
@@ -22,25 +23,34 @@ export default abstract class Job {
         const fixedValue = Math.max(value, 0);
         entity.setDynamicProperty(statPropertyValues.hp, fixedValue);
 
+        const maxHp = this.getMaxHp(entity);
         if (value > 0) {
-            entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(value / 10);
+            system.run(() => {
+                const hearts = ((fixedValue / maxHp) * 200).toFixed(0);
+                entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(Number(hearts));
+            });
         }
 
-        if (this.getMaxHp(entity) > fixedValue && !entity.getDynamicProperty(statPropertyValues.hpInterval)) {
-            const interval = system.runInterval(() => {
-                const maxHp = this.getMaxHp(entity);
-                const newValue = Math.min(this.getHp(entity) + this.getHpRegen(entity), maxHp);
-                entity.setDynamicProperty(statPropertyValues.hp, newValue);
+        if (maxHp > fixedValue && !entity.getDynamicProperty(statPropertyValues.hpInterval)) {
+            const interval = runInterval(
+                entity,
+                () => {
+                    const maxHp = this.getMaxHp(entity);
+                    const newValue = Math.min(this.getHp(entity) + this.getHpRegen(entity), maxHp);
+                    entity.setDynamicProperty(statPropertyValues.hp, newValue);
 
-                if (newValue > 0) {
-                    entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(newValue / 10);
-                }
+                    if (newValue > 0) {
+                        const hearts = ((newValue / maxHp) * 200).toFixed(0);
+                        entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(Number(hearts));
+                    }
 
-                if (newValue === maxHp) {
-                    entity.setDynamicProperty(statPropertyValues.hpInterval, undefined);
-                    system.clearRun(interval);
-                }
-            }, 20);
+                    if (newValue === maxHp) {
+                        entity.setDynamicProperty(statPropertyValues.hpInterval, undefined);
+                        clearRun(entity, interval);
+                    }
+                },
+                20,
+            );
 
             entity.setDynamicProperty(statPropertyValues.hpInterval, interval);
         }
@@ -62,20 +72,24 @@ export default abstract class Job {
         }
 
         if (this.getMaxMn(entity) > fixedValue && !entity.getDynamicProperty(statPropertyValues.mnInterval)) {
-            const interval = system.runInterval(() => {
-                const maxMn = this.getMaxMn(entity);
-                const newValue = Math.min(this.getMn(entity) + this.getMnRegen(entity), maxMn);
+            const interval = runInterval(
+                entity,
+                () => {
+                    const maxMn = this.getMaxMn(entity);
+                    const newValue = Math.min(this.getMn(entity) + this.getMnRegen(entity), maxMn);
 
-                entity.setDynamicProperty(statPropertyValues.mn, newValue);
-                if (playerYn) {
-                    entity.addLevels(newValue - entity.level);
-                }
+                    entity.setDynamicProperty(statPropertyValues.mn, newValue);
+                    if (playerYn) {
+                        entity.addLevels(newValue - entity.level);
+                    }
 
-                if (newValue === maxMn) {
-                    entity.setDynamicProperty(statPropertyValues.mnInterval, undefined);
-                    system.clearRun(interval);
-                }
-            }, 20);
+                    if (newValue === maxMn) {
+                        entity.setDynamicProperty(statPropertyValues.mnInterval, undefined);
+                        clearRun(entity, interval);
+                    }
+                },
+                20,
+            );
 
             entity.setDynamicProperty(statPropertyValues.mnInterval, interval);
         }
@@ -118,6 +132,10 @@ export default abstract class Job {
     getRemainCool(player: Player, skillType: SkillType): number {
         const endTick = (player.getDynamicProperty(this.getCoolRemainProperty(skillType)) ?? Number.MIN_VALUE) as number;
         return Math.max(endTick - system.currentTick, 0);
+    }
+
+    setRemainCool(player: Player, skillType: SkillType, cool: number) {
+        player.setDynamicProperty(this.getCoolRemainProperty(skillType), system.currentTick + cool);
     }
 
     canUseSkill(player: Player, skillType: SkillType): [FailReasonType | null, number] {
@@ -195,7 +213,7 @@ export default abstract class Job {
 
         // 추후 광역으로 스킬 사용을 감지해야 하는 일이 생기거나 하면 여기 구현하면 됨
         const coolTime = this.getSkillCool(skillType, player);
-        player.setDynamicProperty(this.getCoolRemainProperty(skillType), system.currentTick + coolTime);
+        this.setRemainCool(player, skillType, coolTime);
 
         const availableMessage = this.getAvailableMessage(skillType);
         const coolTimeoutProperty = this.getCoolTimeoutProperty(skillType);

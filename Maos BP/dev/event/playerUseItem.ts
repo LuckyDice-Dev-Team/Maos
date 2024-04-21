@@ -9,15 +9,22 @@ world.afterEvents.itemUse.subscribe(({ source, itemStack }) => {
     if (opList.includes(source.name)) {
         switch (itemStack.typeId) {
             case "minecraft:compass": {
-                const adminUI = new AdminUI(source);
-                adminUI
-                    .show()
-                    .then(() => {
-                        if (adminUI.isCustomWarn()) {
-                            sendWarn(source, adminUI.getCanceled());
-                        }
-                    })
-                    .catch(console.error);
+                if (source.isSneaking) {
+                    const [target] = source.getEntitiesFromViewDirection({
+                        maxDistance: 16,
+                    });
+                    source.sendMessage(String(target?.entity?.nameTag));
+                } else {
+                    const adminUI = new AdminUI(source);
+                    adminUI
+                        .show()
+                        .then(() => {
+                            if (adminUI.isCustomWarn()) {
+                                sendWarn(source, adminUI.getCanceled());
+                            }
+                        })
+                        .catch(console.error);
+                }
 
                 return;
             }

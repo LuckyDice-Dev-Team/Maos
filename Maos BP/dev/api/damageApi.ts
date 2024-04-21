@@ -1,11 +1,15 @@
-import { EntityDamageCause, world } from "@minecraft/server";
+import { Entity, EntityDamageCause, world } from "@minecraft/server";
 import { getJobType } from "./jobApi";
 import { jobs } from "../data/jobData";
 
-export const damage = (sourceId: string, targetId: string, value: number) => {
+export const damageById = (value: number, sourceId: string, targetId: string) => {
     const target = world.getEntity(targetId);
     const source = world.getEntity(sourceId);
 
+    damage(value, source, target);
+};
+
+export const damage = (value: number, source?: Entity, target?: Entity) => {
     if (!source || !target) {
         console.warn("Tried to damage to undefined");
         return;

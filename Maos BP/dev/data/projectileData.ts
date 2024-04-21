@@ -5,7 +5,7 @@ import { Vector, Vector3, world } from "@minecraft/server";
 import { calcVectorLength, calcVectors } from "../utils/mathUtils";
 import OptionalMap from "../object/optionalMap";
 import { TeamTag } from "./tag";
-import { damage } from "../api/damageApi";
+import { damageById } from "../api/damageApi";
 import { setDebuff } from "../api/buffApi";
 import { debuffPropertyValues } from "./propertyData";
 import { getCenter } from "../utils/entityUtils";
@@ -133,7 +133,7 @@ export const projectileFunctions: {
             includeEnemy: true,
         }),
         onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
-            damage(summoner, target, 30);
+            damageById(80, summoner, target);
             dimensions[dimensionId].spawnParticle("maos:common_hit", targetHitLocations[target]);
 
             return true;
@@ -157,7 +157,7 @@ export const projectileFunctions: {
             includeEnemy: true,
         }),
         onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
-            damage(summoner, target, 50);
+            damageById(100, summoner, target);
 
             const entity = world.getEntity(target);
             if (entity) {

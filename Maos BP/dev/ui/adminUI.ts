@@ -91,7 +91,7 @@ export default class AdminUI extends UI {
                 const { selectedList, playerMap } = playerSelectUI;
                 for (const playerName of selectedList) {
                     const player = playerMap.getOrThrow(playerName);
-                    damage(player.id, player.id, 1);
+                    damage(1, player, player);
                 }
 
                 break;

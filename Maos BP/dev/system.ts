@@ -1,5 +1,5 @@
 import { Dimension, Entity, MinecraftDimensionTypes, system, world, WorldInitializeAfterEvent } from "@minecraft/server";
-import { SystemProperty } from "./data/propertyData";
+import { SystemProperty, systemPropertyValues } from "./data/propertyData";
 
 export const opList = ["namsic", "namsic6460", "Korean SL1"];
 
@@ -53,4 +53,64 @@ export const registerEvent = (func: () => void) => {
     };
 
     world.afterEvents.worldInitialize.subscribe(worldInitializeCallback);
+};
+
+const getRunIds = (entity: Entity) => {
+    return JSON.parse((entity.getDynamicProperty(systemPropertyValues.runIds) ?? "[]") as string) as number[];
+};
+
+const setRunIds = (entity: Entity, runIds: number[]) => {
+    if (!runIds.length) {
+        entity.setDynamicProperty(systemPropertyValues.runIds, undefined);
+    }
+
+    entity.setDynamicProperty(systemPropertyValues.runIds, JSON.stringify(runIds));
+};
+
+export const run = (entity: Entity, callback: () => void) => {
+    const runId = system.run(() => {
+        callback();
+        clearRun(entity, runId, false);
+    });
+    const runIds = getRunIds(entity);
+
+    runIds.push(runId);
+    setRunIds(entity, runIds);
+
+    return runId;
+};
+
+export const runTimeout = (entity: Entity, callback: () => void, tick: number) => {
+    const runId = system.runTimeout(() => {
+        callback();
+        clearRun(entity, runId, false);
+    }, tick);
+    const runIds = getRunIds(entity);
+
+    runIds.push(runId);
+    setRunIds(entity, runIds);
+
+    return runId;
+};
+
+export const runInterval = (entity: Entity, callback: () => void, tick: number) => {
+    const runId = system.runInterval(callback, tick);
+    const runIds = getRunIds(entity);
+
+    runIds.push(runId);
+    setRunIds(entity, runIds);
+
+    return runId;
+};
+
+export const clearRun = (entity: Entity, runId: number, isInterval: boolean = true) => {
+    if (isInterval) {
+        system.clearRun(runId);
+    }
+
+    const runIds = getRunIds(entity);
+    const index = runIds.indexOf(runId);
+    if (index !== -1) {
+        runIds.splice(index, 1);
+    }
 };
