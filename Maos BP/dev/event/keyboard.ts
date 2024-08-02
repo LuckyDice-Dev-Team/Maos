@@ -1,10 +1,9 @@
-import { Player, world } from "@minecraft/server";
+import { world } from "@minecraft/server";
 import { getInventoryComponent, isPlayer } from "../utils/entityUtils";
 import { getJobType } from "../api/jobApi";
-import { jobs, JobType } from "../data/jobData";
-import Job from "../type/jobType";
+import { jobs } from "../data/jobData";
 
-world.beforeEvents.dataDrivenEntityTriggerEvent.subscribe(({ entity, id }) => {
+world.afterEvents.dataDrivenEntityTrigger.subscribe(({ entity, eventId }) => {
     if (!isPlayer(entity)) {
         return;
     }
@@ -15,15 +14,15 @@ world.beforeEvents.dataDrivenEntityTriggerEvent.subscribe(({ entity, id }) => {
     }
 
     const inventoryComponent = getInventoryComponent(entity);
-    const currentItem = inventoryComponent.container?.getItem(entity.selectedSlot);
+    const currentItem = inventoryComponent.container?.getItem(entity.selectedSlotIndex);
     if (!currentItem?.getTags().includes("skill")) {
         return;
     }
 
     let input;
     const job = jobs[jobType];
-    if (id.startsWith("lkd:keyboard")) {
-        input = Number(id.substring(12));
+    if (eventId.startsWith("lkd:keyboard")) {
+        input = Number(eventId.substring(12));
         switch (input) {
             case 0: {
                 job.useSkill(entity, "key1");
@@ -48,8 +47,8 @@ world.beforeEvents.dataDrivenEntityTriggerEvent.subscribe(({ entity, id }) => {
             default:
                 return;
         }
-    } else if (id.startsWith("lkd:mouse")) {
-        input = Number(id.substring(9));
+    } else if (eventId.startsWith("lkd:mouse")) {
+        input = Number(eventId.substring(9));
         switch (input) {
             case 1: {
                 job.useSkill(entity, "left");
@@ -64,8 +63,8 @@ world.beforeEvents.dataDrivenEntityTriggerEvent.subscribe(({ entity, id }) => {
             default:
                 return;
         }
-    } else if (id.startsWith("lkd:wheel")) {
-        input = Number(id.substring(9));
+    } else if (eventId.startsWith("lkd:wheel")) {
+        input = Number(eventId.substring(9));
         console.warn("wheel", input);
     }
 });

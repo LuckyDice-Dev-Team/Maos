@@ -1,8 +1,6 @@
 import UI from "./ui";
-import { jobDataValues, JobType } from "../data/jobData";
 import { ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
-import { keys } from "../utils/objectUtils";
-import { Entity, Player } from "@minecraft/server";
+import { Player } from "@minecraft/server";
 import OptionalMap from "../object/optionalMap";
 import InputUI from "./inputUI";
 

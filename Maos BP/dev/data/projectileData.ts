@@ -1,7 +1,7 @@
 import { CheckHitOption, Projectile, ProjectileData, ProjectileFunction, ProjectileType } from "../type/projectileType";
 import { JobType } from "./jobData";
 import { dimensions, overworld } from "../system";
-import { Vector, Vector3, world } from "@minecraft/server";
+import { Vector3, world } from "@minecraft/server";
 import { calcVectorLength, calcVectors } from "../utils/mathUtils";
 import OptionalMap from "../object/optionalMap";
 import { TeamTag } from "./tag";
@@ -9,6 +9,7 @@ import { damageById } from "../api/damageApi";
 import { setDebuff } from "../api/buffApi";
 import { debuffPropertyValues } from "./propertyData";
 import { getCenter } from "../utils/entityUtils";
+import { Space } from "../space/space";
 
 const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
     ice_magician: {
@@ -58,7 +59,7 @@ const getDefaultCheckHit = ({ includeAlly, includeEnemy, includeSelf, radius }: 
 
         const lineVector = calcVectors(startLocation, endLocation, (x, y) => y - x);
         const totalDistance = calcVectorLength(lineVector);
-        const normalizedLineVector = Vector.divide(lineVector, totalDistance);
+        const normalizedLineVector = Space.divide(lineVector, totalDistance);
 
         const midLocation = calcVectors(startLocation, endLocation, (v1, v2) => (v2 + v1) / 2);
         const excludeTags: TeamTag[] = [];
@@ -90,18 +91,18 @@ const getDefaultCheckHit = ({ includeAlly, includeEnemy, includeSelf, radius }: 
             const yDiff = entity.getHeadLocation().y - entityLocation.y;
             entityLocation.y += yDiff * 0.6;
 
-            const crossVector = Vector.cross(
+            const crossVector = Space.cross(
                 calcVectors(entityLocation, startLocation, (v1, v2) => v1 - v2),
                 normalizedLineVector,
             );
 
             const distanceToLine = calcVectorLength(crossVector) / calcVectorLength(normalizedLineVector);
             if (distanceToLine <= radius) {
-                distanceMap.set(entity.id, Vector.distance(entityLocation, startLocation));
+                distanceMap.set(entity.id, Space.distance(entityLocation, startLocation));
                 hitEntities.push(entity.id);
 
                 const targetHitLocation = calcVectors(startLocation, normalizedLineVector, (value1, value2) => value1 + value2 * radius);
-                const offsetPercent = calcVectorLength(Vector.subtract(targetHitLocation, entityLocation)) / radius;
+                const offsetPercent = calcVectorLength(calcVectors(targetHitLocation, entityLocation, (v1, v2) => v1 - v2)) / radius;
                 targetHitLocations[entity.id] = calcVectors(
                     startLocation,
                     normalizedLineVector,
