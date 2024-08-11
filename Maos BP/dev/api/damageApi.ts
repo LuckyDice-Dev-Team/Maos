@@ -20,7 +20,7 @@ export const damage = (value: number, source?: Entity, target?: Entity) => {
         return;
     }
 
-    target.applyDamage(1, {
+    target.applyDamage(0, {
         cause: EntityDamageCause.entityAttack,
     });
 

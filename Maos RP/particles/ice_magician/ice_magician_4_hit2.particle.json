@@ -1,0 +1,61 @@
+{
+    "format_version": "1.10.0",
+    "particle_effect": {
+        "description": {
+            "identifier": "maos:ice_magician_4_hit2",
+            "basic_render_parameters": {
+                "material": "particles_blend",
+                "texture": "textures/particle/particles"
+            }
+        },
+        "curves": {
+            "variable.r": {
+                "type": "linear",
+                "input": "v.particle_random_1 * 360",
+                "horizontal_range": 360,
+                "nodes": [0, -1, 1, -1, 0, -1, 1, -1, 0, -1, 1, -1, 0, -1, 1, -1, 0]
+            }
+        },
+        "components": {
+            "minecraft:emitter_rate_instant": {
+                "num_particles": 600
+            },
+            "minecraft:emitter_lifetime_looping": {
+                "active_time": 0.25
+            },
+            "minecraft:emitter_shape_point": {
+                "offset": ["math.sin(v.particle_random_1 * 360) * (v.r + 0.7)", 0, "math.cos(v.particle_random_1 * 360) * (v.r + 0.7)"],
+                "direction": [0, 1, 0]
+            },
+            "minecraft:particle_lifetime_expression": {
+                "max_lifetime": 0.25
+            },
+            "minecraft:particle_initial_speed": "0.5 - v.particle_random_2 / 2",
+            "minecraft:particle_motion_dynamic": {},
+            "minecraft:particle_appearance_billboard": {
+                "size": [0.15, 0.15],
+                "facing_camera_mode": "rotate_xyz",
+                "uv": {
+                    "texture_width": 16,
+                    "texture_height": 16,
+                    "flipbook": {
+                        "base_UV": [0, 0],
+                        "size_UV": [1, 1],
+                        "step_UV": [1, 0],
+                        "frames_per_second": 24,
+                        "max_frame": 6
+                    }
+                }
+            },
+            "minecraft:particle_appearance_tinting": {
+                "color": {
+                    "interpolant": "v.emitter_random_1 + v.particle_random_3 / 2",
+                    "gradient": {
+                        "0.0": "#FF282CFF",
+                        "1.5": "#FF15F0FF"
+                    }
+                }
+            }
+        }
+    }
+}

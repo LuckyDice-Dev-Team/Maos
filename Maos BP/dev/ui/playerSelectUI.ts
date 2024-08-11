@@ -1,7 +1,6 @@
 import UI from "./ui";
 import { ActionFormData, ActionFormResponse } from "@minecraft/server-ui";
 import { EntityQueryOptions, Player } from "@minecraft/server";
-import { overworld } from "../system";
 import OptionalMap from "../object/optionalMap";
 
 interface PlayerSelectUIOption {
@@ -46,7 +45,7 @@ export default class PlayerSelectUI extends UI {
     createForm() {
         const playerName = this.player.name;
         const form = new ActionFormData().title("플레이어 선택").button("선택 완료");
-        const targets = overworld.getPlayers(this.option.queryOption).filter((target) => {
+        const targets = this.player.dimension.getPlayers(this.option.queryOption).filter((target) => {
             const { name: targetName } = target;
 
             // 중복 선택이 활성화되있거나 선택되지 않았어야 하고 && 날 제외하는게 아니거나 내가 대상이 아니어야 함

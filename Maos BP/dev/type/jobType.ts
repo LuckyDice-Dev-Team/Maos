@@ -6,7 +6,6 @@ import { CoolRemainProperty, CoolTimeoutProperty, debuffPropertyValues, statProp
 import { convertListToObject } from "../utils/objectUtils";
 import { getDebuffTime } from "../api/buffApi";
 import { isPlayer } from "../utils/entityUtils";
-import { clearRun, runInterval } from "../system";
 
 const failReasons = ["stun", "mn", "hp", "cool"] as const;
 export type FailReasonType = (typeof failReasons)[number];
@@ -29,28 +28,39 @@ export default abstract class Job {
                 const hearts = ((fixedValue / maxHp) * 200).toFixed(0);
                 entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(Number(hearts));
             });
+        } else {
+            entity.setDynamicProperty(statPropertyValues.hp, this.getMaxHp(entity));
+            entity.kill();
+
+            const hpInterval = entity.getDynamicProperty(statPropertyValues.hpInterval);
+            if (hpInterval) {
+                entity.setDynamicProperty(statPropertyValues.hpInterval, undefined);
+                system.clearRun(hpInterval as number);
+            }
+
+            return;
         }
 
         if (maxHp > fixedValue && !entity.getDynamicProperty(statPropertyValues.hpInterval)) {
-            const interval = runInterval(
-                entity,
-                () => {
-                    const maxHp = this.getMaxHp(entity);
-                    const newValue = Math.min(this.getHp(entity) + this.getHpRegen(entity), maxHp);
-                    entity.setDynamicProperty(statPropertyValues.hp, newValue);
+            const interval = system.runInterval(() => {
+                if (!entity.isValid()) {
+                    return;
+                }
 
-                    if (newValue > 0) {
-                        const hearts = ((newValue / maxHp) * 200).toFixed(0);
-                        entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(Number(hearts));
-                    }
+                const maxHp = this.getMaxHp(entity);
+                const newValue = Math.min(this.getHp(entity) + this.getHpRegen(entity), maxHp);
+                entity.setDynamicProperty(statPropertyValues.hp, newValue);
 
-                    if (newValue === maxHp) {
-                        entity.setDynamicProperty(statPropertyValues.hpInterval, undefined);
-                        clearRun(entity, interval);
-                    }
-                },
-                20,
-            );
+                if (newValue > 0) {
+                    const hearts = ((newValue / maxHp) * 200).toFixed(0);
+                    entity.getComponent(EntityHealthComponent.componentId)?.setCurrentValue(Number(hearts));
+                }
+
+                if (newValue === maxHp) {
+                    entity.setDynamicProperty(statPropertyValues.hpInterval, undefined);
+                    system.clearRun(interval);
+                }
+            }, 20);
 
             entity.setDynamicProperty(statPropertyValues.hpInterval, interval);
         }
@@ -72,24 +82,24 @@ export default abstract class Job {
         }
 
         if (this.getMaxMn(entity) > fixedValue && !entity.getDynamicProperty(statPropertyValues.mnInterval)) {
-            const interval = runInterval(
-                entity,
-                () => {
-                    const maxMn = this.getMaxMn(entity);
-                    const newValue = Math.min(this.getMn(entity) + this.getMnRegen(entity), maxMn);
+            const interval = system.runInterval(() => {
+                if (!entity.isValid()) {
+                    return;
+                }
 
-                    entity.setDynamicProperty(statPropertyValues.mn, newValue);
-                    if (playerYn) {
-                        entity.addLevels(newValue - entity.level);
-                    }
+                const maxMn = this.getMaxMn(entity);
+                const newValue = Math.min(this.getMn(entity) + this.getMnRegen(entity), maxMn);
 
-                    if (newValue === maxMn) {
-                        entity.setDynamicProperty(statPropertyValues.mnInterval, undefined);
-                        clearRun(entity, interval);
-                    }
-                },
-                20,
-            );
+                entity.setDynamicProperty(statPropertyValues.mn, newValue);
+                if (playerYn) {
+                    entity.addLevels(newValue - entity.level);
+                }
+
+                if (newValue === maxMn) {
+                    entity.setDynamicProperty(statPropertyValues.mnInterval, undefined);
+                    system.clearRun(interval);
+                }
+            }, 20);
 
             entity.setDynamicProperty(statPropertyValues.mnInterval, interval);
         }
@@ -219,8 +229,10 @@ export default abstract class Job {
         const coolTimeoutProperty = this.getCoolTimeoutProperty(skillType);
         if (skillType !== "left") {
             const coolTimeout = system.runTimeout(() => {
-                player.sendMessage(availableMessage);
-                player.setDynamicProperty(coolTimeoutProperty, undefined);
+                if (player.isValid()) {
+                    player.sendMessage(availableMessage);
+                    player.setDynamicProperty(coolTimeoutProperty, undefined);
+                }
             }, coolTime);
 
             player.setDynamicProperty(coolTimeoutProperty, coolTimeout);

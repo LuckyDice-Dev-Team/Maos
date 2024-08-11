@@ -37,7 +37,10 @@ export default class PropertySelectUI extends UI {
     async processResult({ selection }: ActionFormResponse) {
         if (typeof selection === "number") {
             if (selection === 0) {
-                this.cancelReason = "프로퍼티가 선택되지 않았습니다";
+                if (!this.propertyIds.length) {
+                    this.cancelReason = "프로퍼티가 선택되지 않았습니다";
+                }
+
                 return;
             } else if (selection === 1) {
                 const inputUI = new InputUI(this.player, true, false);

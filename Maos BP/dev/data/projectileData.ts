@@ -10,6 +10,7 @@ import { setDebuff } from "../api/buffApi";
 import { debuffPropertyValues } from "./propertyData";
 import { getCenter } from "../utils/entityUtils";
 import { Space } from "../space/space";
+import { trySpawnParticle } from "../utils/particleUtils";
 
 const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
     ice_magician: {
@@ -20,7 +21,7 @@ const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
                 y: 0.125,
                 z: 0,
             },
-            moveDisPerLoop: 1.5,
+            moveDisPerLoop: 2.25,
             life: 20,
             entityPenetrateRemain: 0,
             blockPenetrateRemain: {},
@@ -33,7 +34,7 @@ const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
                 y: 0.125,
                 z: 0,
             },
-            moveDisPerLoop: 1.1,
+            moveDisPerLoop: 1.6,
             life: 15,
             entityPenetrateRemain: 0,
             blockPenetrateRemain: {},
@@ -121,9 +122,10 @@ export const projectileFunctions: {
     "ice_magician:1": {
         onTick: ({ dimensionId, location }) => {
             const dimension = dimensions[dimensionId];
-            dimension.spawnParticle("maos:ice_magician_1_tick1", location);
-            dimension.spawnParticle("maos:ice_magician_1_tick2", location);
-            dimension.spawnParticle("maos:ice_magician_1_tick3", location);
+            dimension.playSound("job.ice_magician.left.tick", location);
+            trySpawnParticle(dimension, "maos:ice_magician_1_tick1", location);
+            trySpawnParticle(dimension, "maos:ice_magician_1_tick2", location);
+            trySpawnParticle(dimension, "maos:ice_magician_1_tick3", location);
 
             return false;
         },
@@ -134,8 +136,12 @@ export const projectileFunctions: {
             includeEnemy: true,
         }),
         onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
+            const dimension = dimensions[dimensionId];
+            const targetHitLocation = targetHitLocations[target];
+
+            dimension.playSound("job.ice_magician.left.hit", targetHitLocation);
+            trySpawnParticle(dimension, "maos:common_hit", targetHitLocation);
             damageById(80, summoner, target);
-            dimensions[dimensionId].spawnParticle("maos:common_hit", targetHitLocations[target]);
 
             return true;
         },
@@ -147,8 +153,8 @@ export const projectileFunctions: {
         onPath: ({ dimensionId }, locations) => {
             const dimension = dimensions[dimensionId];
             locations.forEach((location) => {
-                dimension.spawnParticle("maos:ice_magician_2_tick1", location);
-                dimension.spawnParticle("maos:ice_magician_2_tick2", location);
+                trySpawnParticle(dimension, "maos:ice_magician_2_tick1", location);
+                trySpawnParticle(dimension, "maos:ice_magician_2_tick2", location);
             });
         },
         checkHit: getDefaultCheckHit({
@@ -165,8 +171,10 @@ export const projectileFunctions: {
                 setDebuff(entity, debuffPropertyValues.pin, 30); // 파티클 시간과 연계
 
                 const dimension = dimensions[dimensionId];
-                dimension.spawnParticle("maos:common_hit", targetHitLocations[target]);
-                dimension.spawnParticle("maos:ice_magician_2_hit", getCenter(entity));
+                const targetHitLocation = targetHitLocations[target];
+                dimension.playSound("job.ice_magician.right.hit", targetHitLocation);
+                trySpawnParticle(dimension, "maos:common_hit", targetHitLocation);
+                trySpawnParticle(dimension, "maos:ice_magician_2_hit", getCenter(entity));
             }
 
             return true;
