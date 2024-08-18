@@ -1,5 +1,5 @@
 import { Vector3 } from "@minecraft/server";
-import { sumVector } from "./mathUtils";
+import { Space } from "../space/space";
 
 // <= 1
 const POINT_GAP = 0.7;
@@ -92,7 +92,7 @@ const getIntersectionVector = (startLocation: Vector3, directionVector: Vector3,
 
 const addHitBlocks = (startLocation: Vector3, endLocation: Vector3, hitLocations: Vector3[]) => {
     const diffVector = getDiffVector(startLocation, endLocation);
-    const totalDiff = sumVector(diffVector);
+    const totalDiff = Space.sum(diffVector);
 
     // Diff 의 범위는 n 차원에서 0~n 이다
     if (totalDiff === 0) {
@@ -122,7 +122,7 @@ const addHitBlocks = (startLocation: Vector3, endLocation: Vector3, hitLocations
                 true,
             );
 
-            let sumValue = sumVector(getDiffVector(startLocation, firstIntersectionVector));
+            let sumValue = Space.sum(getDiffVector(startLocation, firstIntersectionVector));
             if (sumValue !== 1) {
                 if (sumValue === 2) {
                     secondIntersectionVector = firstIntersectionVector;
@@ -138,7 +138,7 @@ const addHitBlocks = (startLocation: Vector3, endLocation: Vector3, hitLocations
                     true,
                 );
 
-                sumValue = sumVector(getDiffVector(startLocation, firstIntersectionVector));
+                sumValue = Space.sum(getDiffVector(startLocation, firstIntersectionVector));
                 if (sumValue !== 1) {
                     if (sumValue === 2) {
                         secondIntersectionVector = firstIntersectionVector;

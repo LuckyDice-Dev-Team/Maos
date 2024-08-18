@@ -12,7 +12,7 @@ export const setInputPermission = (entity: Entity, permission: InputPermission) 
                 entity.runCommand("inputpermission set @s camera enabled");
                 entity.runCommand("inputpermission set @s movement enabled");
             } else {
-                entity.runCommand("effect @s slowness 0");
+                entity.removeEffect("slowness");
             }
 
             break;
@@ -20,10 +20,12 @@ export const setInputPermission = (entity: Entity, permission: InputPermission) 
 
         case "pin": {
             if (playerYn) {
+                entity.teleport(entity.location);
                 entity.runCommand("inputpermission set @s camera enabled");
                 entity.runCommand("inputpermission set @s movement disabled");
             } else {
-                entity.runCommand("effect @s slowness 9999999 255 true");
+                entity.clearVelocity();
+                entity.addEffect("slowness", 20_000_000, { amplifier: 255, showParticles: false });
             }
 
             break;
@@ -31,10 +33,12 @@ export const setInputPermission = (entity: Entity, permission: InputPermission) 
 
         case "stun": {
             if (playerYn) {
+                entity.teleport(entity.location);
                 entity.runCommand("inputpermission set @s camera disabled");
                 entity.runCommand("inputpermission set @s movement disabled");
             } else {
-                entity.runCommand("effect @s slowness 9999999 255 true");
+                entity.clearVelocity();
+                entity.addEffect("slowness", 20_000_000, { amplifier: 255, showParticles: false });
             }
 
             break;

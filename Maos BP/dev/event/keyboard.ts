@@ -15,7 +15,7 @@ world.afterEvents.dataDrivenEntityTrigger.subscribe(({ entity, eventId }) => {
 
     const inventoryComponent = getInventoryComponent(entity);
     const currentItem = inventoryComponent.container?.getItem(entity.selectedSlotIndex);
-    if (!currentItem?.getTags().includes("skill")) {
+    if (!currentItem?.typeId.startsWith("maos:job_")) {
         return;
     }
 
@@ -64,7 +64,7 @@ world.afterEvents.dataDrivenEntityTrigger.subscribe(({ entity, eventId }) => {
                 return;
         }
     } else if (eventId.startsWith("lkd:wheel")) {
-        input = Number(eventId.substring(9));
-        console.warn("wheel", input);
+        // input = Number(eventId.substring(9));
+        // TODO
     }
 });

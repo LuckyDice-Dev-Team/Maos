@@ -12,7 +12,7 @@ import { Space } from "../../space/space";
 
 export default class IceMagician extends Job {
     getMaxHp() {
-        return 1500;
+        return 2000;
     }
 
     getMaxMn() {
@@ -20,7 +20,7 @@ export default class IceMagician extends Job {
     }
 
     getHpRegen() {
-        return 15;
+        return 18;
     }
 
     getMnRegen() {
@@ -213,17 +213,17 @@ export default class IceMagician extends Job {
         const dimension = targetEntity.dimension;
 
         damage(200, player, targetEntity);
-        setDebuff(targetEntity, "stun", 60);
+        setDebuff(targetEntity, "stun", 50);
         targetEntity.addEffect("slowness", 100, { amplifier: 2 });
 
-        const basis = Space.getByValue(5, 0, 0);
+        const controlLocation = Space.getByValue(5, 0, 0);
         const particleLocation = { ...hitLocation, y: hitLocation.y + 1 };
         for (let i = 0; i < 8; ++i) {
-            basis.yTilt(Math.PI / 4);
+            controlLocation.yTilt(Math.PI / 4);
 
             const variableMap = new MolangVariableMap();
-            variableMap.setFloat("variable.x", basis.x);
-            variableMap.setFloat("variable.z", basis.z);
+            variableMap.setFloat("variable.x", controlLocation.x);
+            variableMap.setFloat("variable.z", controlLocation.z);
 
             trySpawnParticle(dimension, "maos:ice_magician_6_hit1", particleLocation, variableMap);
             trySpawnParticle(dimension, "maos:ice_magician_6_hit5", particleLocation, variableMap);
@@ -239,10 +239,6 @@ export default class IceMagician extends Job {
 
         system.runTimeout(() => {
             if (!targetEntity.isValid()) {
-                return;
-            }
-
-            if (Space.distance(hitLocation, targetEntity.location) >= 1) {
                 return;
             }
 

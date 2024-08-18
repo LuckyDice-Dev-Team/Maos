@@ -16,8 +16,16 @@ export interface ProjectileData {
 export interface ProjectileFunction {
     onTick: (projectile: Projectile) => boolean;
     onPath?: (projectile: Projectile, locations: Vector3[], deadLocation?: Vector3) => void;
-    checkHit: (projectile: Projectile, endLocation: Vector3, targetHitLocations: Record<string, Vector3>) => string[];
-    onHit: (projectile: Projectile, targets: string[], targetHitLocations: Record<string, Vector3>) => boolean;
+    checkHit: (
+        projectile: Projectile,
+        endLocation: Vector3,
+        targetHitLocations: Record<string, Vector3>,
+    ) => {
+        entityId: string;
+        distance: number;
+        hitLocation: Vector3;
+    }[];
+    onHit: (projectile: Projectile, targets: ReturnType<ProjectileFunction["checkHit"]>, targetHitLocations: Record<string, Vector3>) => boolean;
 }
 
 export interface Projectile extends ProjectileData {
