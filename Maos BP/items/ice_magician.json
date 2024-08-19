@@ -1,21 +1,19 @@
 {
-	"format_version": "1.16.100",
+	"format_version": "1.21.10",
 	"minecraft:item": {
 		"description": {
-			"identifier": "maos:ice_magician",
-			"category": "items"
+			"identifier": "maos:job_ice_magician",
+			"menu_category": {
+				"category": "items"
+			}
 		},
 		"components": {
+			"minecraft:icon": "ice_magician",
 			"minecraft:max_stack_size": 1,
-			"minecraft:icon": {
-				"texture": "job1"
-			},
 			"minecraft:creative_category": {
 				"parent": "equipment"
 			},
-			"minecraft:hand_equipped": true,
-			"tag:skill": {}
-		},
-		"events": {}
+			"minecraft:hand_equipped": true
+		}
 	}
 }

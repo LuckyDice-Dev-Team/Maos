@@ -2,8 +2,6 @@ import { CheckHitOption, Projectile, ProjectileData, ProjectileFunction, Project
 import { JobType } from "./jobData";
 import { dimensions, overworld } from "../system";
 import { Vector3, world } from "@minecraft/server";
-import { calcVectorLength, calcVectors } from "../utils/mathUtils";
-import OptionalMap from "../object/optionalMap";
 import { TeamTag } from "./tag";
 import { damageById } from "../api/damageApi";
 import { setDebuff } from "../api/buffApi";
@@ -11,6 +9,7 @@ import { debuffPropertyValues } from "./propertyData";
 import { getCenter } from "../utils/entityUtils";
 import { Space } from "../space/space";
 import { trySpawnParticle } from "../utils/particleUtils";
+import { getPerpendicularFoot } from "../utils/mathUtils";
 
 const projectileDatas: Record<JobType, Record<number, ProjectileData>> = {
     ice_magician: {
@@ -54,15 +53,18 @@ export const getProjectileData = (jobType: JobType, key: number) => {
 };
 
 const getDefaultCheckHit = ({ includeAlly, includeEnemy, includeSelf, radius }: CheckHitOption) => {
-    return function ({ location: startLocation, team, summoner }: Projectile, endLocation: Vector3, targetHitLocations: Record<string, Vector3>) {
-        const hitEntities: string[] = [];
-        const distanceMap = new OptionalMap<string, number>();
+    return function (
+        { location: startLocation, team, summoner, vector }: Projectile,
+        endLocation: Vector3,
+        targetHitLocations: Record<string, Vector3>,
+    ) {
+        const hitEntities: ReturnType<ProjectileFunction["checkHit"]> = [];
 
-        const lineVector = calcVectors(startLocation, endLocation, (x, y) => y - x);
-        const totalDistance = calcVectorLength(lineVector);
+        const lineVector = Space.subtract(endLocation, startLocation);
+        const totalDistance = Space.len(lineVector);
         const normalizedLineVector = Space.divide(lineVector, totalDistance);
 
-        const midLocation = calcVectors(startLocation, endLocation, (v1, v2) => (v2 + v1) / 2);
+        const midLocation = Space.divide(Space.add(startLocation, endLocation), 2);
         const excludeTags: TeamTag[] = [];
 
         if (!includeAlly) {
@@ -92,27 +94,21 @@ const getDefaultCheckHit = ({ includeAlly, includeEnemy, includeSelf, radius }: 
             const yDiff = entity.getHeadLocation().y - entityLocation.y;
             entityLocation.y += yDiff * 0.6;
 
-            const crossVector = Space.cross(
-                calcVectors(entityLocation, startLocation, (v1, v2) => v1 - v2),
-                normalizedLineVector,
-            );
-
-            const distanceToLine = calcVectorLength(crossVector) / calcVectorLength(normalizedLineVector);
+            const crossVector = Space.cross(Space.subtract(entityLocation, startLocation), normalizedLineVector);
+            const distanceToLine = Space.len(crossVector) / Space.len(normalizedLineVector);
             if (distanceToLine <= radius) {
-                distanceMap.set(entity.id, Space.distance(entityLocation, startLocation));
-                hitEntities.push(entity.id);
+                const hitLocation = getPerpendicularFoot(startLocation, endLocation, entityLocation);
 
-                const targetHitLocation = calcVectors(startLocation, normalizedLineVector, (value1, value2) => value1 + value2 * radius);
-                const offsetPercent = calcVectorLength(calcVectors(targetHitLocation, entityLocation, (v1, v2) => v1 - v2)) / radius;
-                targetHitLocations[entity.id] = calcVectors(
-                    startLocation,
-                    normalizedLineVector,
-                    (value1, value2) => value1 + value2 * radius * 1.5 * offsetPercent,
-                );
+                targetHitLocations[entity.id] = hitLocation;
+                hitEntities.push({
+                    hitLocation,
+                    entityId: entity.id,
+                    distance: Space.subtract(startLocation, entityLocation).len(),
+                });
             }
         }
 
-        return hitEntities.sort((a, b) => distanceMap.getOrThrow(a) - distanceMap.getOrThrow(b));
+        return hitEntities.sort((a, b) => a.distance - b.distance);
     };
 };
 
@@ -135,13 +131,13 @@ export const projectileFunctions: {
             includeAlly: false,
             includeEnemy: true,
         }),
-        onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
+        onHit: ({ summoner, dimensionId }, [{ entityId: targetId }], targetHitLocations) => {
             const dimension = dimensions[dimensionId];
-            const targetHitLocation = targetHitLocations[target];
+            const targetHitLocation = targetHitLocations[targetId];
 
             dimension.playSound("job.ice_magician.left.hit", targetHitLocation);
             trySpawnParticle(dimension, "maos:common_hit", targetHitLocation);
-            damageById(80, summoner, target);
+            damageById(80, summoner, targetId);
 
             return true;
         },
@@ -163,18 +159,18 @@ export const projectileFunctions: {
             includeAlly: false,
             includeEnemy: true,
         }),
-        onHit: ({ summoner, dimensionId }, [target], targetHitLocations) => {
-            damageById(100, summoner, target);
+        onHit: ({ summoner, dimensionId }, [{ entityId: targetId }], targetHitLocations) => {
+            damageById(100, summoner, targetId);
 
-            const entity = world.getEntity(target);
-            if (entity) {
-                setDebuff(entity, debuffPropertyValues.pin, 30); // 파티클 시간과 연계
+            const target = world.getEntity(targetId);
+            if (target) {
+                setDebuff(target, debuffPropertyValues.pin, 30); // 파티클 시간과 연계
 
                 const dimension = dimensions[dimensionId];
-                const targetHitLocation = targetHitLocations[target];
+                const targetHitLocation = targetHitLocations[targetId];
                 dimension.playSound("job.ice_magician.right.hit", targetHitLocation);
                 trySpawnParticle(dimension, "maos:common_hit", targetHitLocation);
-                trySpawnParticle(dimension, "maos:ice_magician_2_hit", getCenter(entity));
+                trySpawnParticle(dimension, "maos:ice_magician_2_hit", getCenter(target));
             }
 
             return true;

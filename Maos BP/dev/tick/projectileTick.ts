@@ -1,9 +1,9 @@
 import { Block, Dimension, LocationInUnloadedChunkError, LocationOutOfWorldBoundariesError, Vector3 } from "@minecraft/server";
-import { calcVectors, sumVector } from "../utils/mathUtils";
 import { getDiffVector, getHitLocations } from "../utils/projectileUtils";
-import { dimensions, getProperty, registerEvent, setProperty } from "../system";
-import { Projectile } from "../type/projectileType";
+import { dimensions, getSystemProperty, registerEvent, setSystemProperty } from "../system";
+import { Projectile, ProjectileFunction } from "../type/projectileType";
 import { projectileFunctions } from "../data/projectileData";
+import { Space } from "../space/space";
 
 interface BlockHitData {
     hitLocation: Vector3;
@@ -32,23 +32,23 @@ const getBlockWithCache = (dimension: Dimension, location: Vector3, blockCache: 
     return block;
 };
 
-const filterTargets = (projectile: Projectile, targets: string[]) => {
+const filterTargets = (projectile: Projectile, targets: ReturnType<ProjectileFunction["checkHit"]>) => {
     const penetratingEntities = new Set(projectile.penetratingEntities);
     const newPenetratingEntities: string[] = [];
 
     if (!penetratingEntities.size) {
         targets.splice(projectile.maxHitPerOnce);
-        projectile.penetratingEntities = [...targets];
+        projectile.penetratingEntities = targets.map((target) => target.entityId);
 
         return targets.length > 0;
     }
 
     let size = targets.length;
     for (let i = 0; i < size; i++) {
-        const target = targets[i];
-        newPenetratingEntities.push(target);
+        const targetId = targets[i].entityId;
+        newPenetratingEntities.push(targetId);
 
-        if (penetratingEntities.has(target)) {
+        if (penetratingEntities.has(targetId)) {
             targets.splice(i--, 1);
             size--;
         }
@@ -63,7 +63,7 @@ const filterTargets = (projectile: Projectile, targets: string[]) => {
 registerEvent(() => {
     const deadProjectiles: Projectile[] = [];
     const blockCache = new Map<string, Block | undefined>();
-    const projectiles: Projectile[] = getProperty("projectile") ?? [];
+    const projectiles: Projectile[] = getSystemProperty("projectile") ?? [];
 
     const start = Date.now();
     for (const projectile of projectiles) {
@@ -83,7 +83,7 @@ registerEvent(() => {
             }
 
             let paths: Vector3[] = [];
-            const nextLocation = calcVectors(location, vector, (value1, value2) => value1 + value2 * moveDisPerLoop);
+            const nextLocation = Space.add(location, Space.multiply(vector, moveDisPerLoop));
             const hitLocations = getHitLocations(location, nextLocation, paths);
 
             const isXPositive = vector.x >= 0;
@@ -116,7 +116,7 @@ registerEvent(() => {
                     penetrating = true;
                     continue;
                 } else if (penetratingBlockLocation && penetratingBlock?.endsWith(keySuffix)) {
-                    const totalDiff = sumVector(getDiffVector(penetratingBlockLocation, keyVector));
+                    const totalDiff = Space.sum(getDiffVector(penetratingBlockLocation, keyVector));
                     if (totalDiff === 1) {
                         penetrating = true;
                         penetratingBlock = penetrateKey;
@@ -156,7 +156,7 @@ registerEvent(() => {
                     location.y >= hitLocation.y === isYPositive &&
                     location.z >= hitLocation.z === isZPositive
                 ) {
-                    const penetrateRemain = blockPenetrateRemain[typeId];
+                    const penetrateRemain = blockPenetrateRemain[typeId] ?? blockPenetrateRemain["any"];
                     if (!penetrateRemain) {
                         deadProjectiles.push(projectile);
 
@@ -173,7 +173,7 @@ registerEvent(() => {
                         break;
                     }
 
-                    blockPenetrateRemain[typeId] = penetrateRemain - 1;
+                    blockPenetrateRemain[blockPenetrateRemain[typeId] ? typeId : "any"] = penetrateRemain - 1;
                     penetratingBlock = penetrateKey;
                     penetratingBlockLocation = penetrateVector;
                 }
@@ -220,7 +220,7 @@ registerEvent(() => {
         projectiles.splice(index, 1);
     }
 
-    setProperty("projectile", JSON.stringify(projectiles));
+    setSystemProperty("projectile", JSON.stringify(projectiles));
 
     const took = Date.now() - start;
     if (took > 5) {

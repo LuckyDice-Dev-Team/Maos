@@ -17,11 +17,11 @@ const getSystemEntity = () => {
     return systemEntity;
 };
 
-export const setProperty = (propertyId: SystemProperty, value?: string) => {
+export const setSystemProperty = (propertyId: SystemProperty, value?: string) => {
     getSystemEntity().setDynamicProperty(propertyId, value);
 };
 
-export const getProperty = <T>(propertyId: SystemProperty): T | undefined => {
+export const getSystemProperty = <T>(propertyId: SystemProperty): T | undefined => {
     const property = getSystemEntity().getDynamicProperty(propertyId);
     if (property === undefined) {
         return undefined as T;

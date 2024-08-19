@@ -1,4 +1,4 @@
-import { Entity, EntityDamageCause, world } from "@minecraft/server";
+import { Entity, EntityDamageCause, EntityHealthComponent, world } from "@minecraft/server";
 import { getJobType } from "./jobApi";
 import { jobs } from "../data/jobData";
 
@@ -20,9 +20,11 @@ export const damage = (value: number, source?: Entity, target?: Entity) => {
         return;
     }
 
-    target.applyDamage(0, {
-        cause: EntityDamageCause.entityAttack,
-    });
+    if (target.getComponent(EntityHealthComponent.componentId)?.currentValue ?? 0 > 1) {
+        target.applyDamage(1, {
+            cause: EntityDamageCause.entityAttack,
+        });
+    }
 
     const job = jobs[jobType];
     job.setHp(target, job.getHp(target) - value);

@@ -1,9 +1,9 @@
 import { Player } from "@minecraft/server";
 import { Projectile, ProjectileData } from "../type/projectileType";
-import { calcVectors } from "../utils/mathUtils";
-import { getProperty, setProperty } from "../system";
+import { getSystemProperty, setSystemProperty } from "../system";
 import { getTeam } from "./jobApi";
 import { TeamTag } from "../data/tag";
+import { Space } from "../space/space";
 
 export const spawnProjectile = (player: Player, projectileData: ProjectileData) => {
     const viewVector = player.getViewDirection();
@@ -21,15 +21,15 @@ export const spawnProjectile = (player: Player, projectileData: ProjectileData) 
         summoner: player.id,
         team: getTeam(player) as TeamTag,
         dimensionId: player.dimension.id,
-        location: calcVectors(player.getHeadLocation(), projectileData.offset, (value1, value2) => value1 + value2),
+        location: Space.add(player.getHeadLocation(), projectileData.offset),
         vector: normalizedVector,
         penetratingEntities: [],
         penetratingBlock: null,
         penetratingBlockLocation: null,
     };
 
-    const projectiles: Projectile[] = getProperty("projectile") ?? [];
+    const projectiles: Projectile[] = getSystemProperty("projectile") ?? [];
     projectiles.push(projectile);
 
-    setProperty("projectile", JSON.stringify(projectiles));
+    setSystemProperty("projectile", JSON.stringify(projectiles));
 };

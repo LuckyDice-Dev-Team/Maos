@@ -1,7 +1,9 @@
 {
-	"resource_pack_name": "Maos",
-	"texture_name": "atlas.items",
-	"texture_data": {
-		"job1": { "textures": ["textures/items/job1"] }
-	}
+    "resource_pack_name": "maos",
+    "texture_name": "atlas.items",
+    "texture_data": {
+        "ice_magician": {
+            "textures": "textures/items/ice_magician"
+        }
+    }
 }
