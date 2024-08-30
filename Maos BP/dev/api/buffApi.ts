@@ -204,7 +204,7 @@ export const applyValuedDebuff = (entity: Entity | undefined, debuff: ValuedDebu
         entity.setDynamicProperty(debuff, undefined);
         entity.setDynamicProperty(timeoutProperty, undefined);
         system.clearRun(interval);
-    }, 1);
+    });
 
     entity.setDynamicProperty(timeoutProperty, interval);
 };
