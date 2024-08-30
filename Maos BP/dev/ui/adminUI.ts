@@ -8,7 +8,7 @@ import PropertySelectUI from "./propertySelectUI";
 import InputUI from "./inputUI";
 import { damage } from "../api/damageApi";
 import { system } from "@minecraft/server";
-import { setDebuff } from "../api/buffApi";
+import { applyDebuff } from "../api/buffApi";
 
 export default class AdminUI extends UI {
     createForm() {
@@ -151,7 +151,7 @@ export default class AdminUI extends UI {
 
             system.runTimeout(() => {
                 if (player.isValid()) {
-                    setDebuff(player, "stun", 20);
+                    applyDebuff(player, "stun", 20);
                 }
             }, 20);
         }
@@ -232,9 +232,7 @@ export default class AdminUI extends UI {
         const { selectedList, playerMap } = playerSelectUI;
         for (const selectedName of selectedList) {
             const player = playerMap.getOrThrow(selectedName);
-            for (const dynamicPropertyId of player.getDynamicPropertyIds()) {
-                player.setDynamicProperty(dynamicPropertyId, undefined);
-            }
+            player.clearDynamicProperties();
         }
     }
 }

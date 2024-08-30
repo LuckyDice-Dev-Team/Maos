@@ -1,17 +1,32 @@
-import { debuffPropertyValues, shieldPropertyValues, statPropertyValues } from "../data/propertyData";
+import {
+    debuffPropertyValues,
+    debuffTimeoutPropertyValues,
+    shieldPropertyValues,
+    statPropertyValues,
+    valuedDebuffPropertyValues,
+    valuedDebuffTimeoutPropertyValues,
+} from "../data/propertyData";
 import { Player, system, world } from "@minecraft/server";
 import { getJobType } from "./jobApi";
 import { jobs } from "../data/jobData";
 import { getShield, setShield } from "./shieldApi";
-import { getDebuffTime, setDebuff } from "./buffApi";
+import { applyDebuff, applyValuedDebuff, getDebuffTime, valuedDebuffActionMap } from "./buffApi";
 
 export const INTERVAL_KEYS = [
     statPropertyValues.hpInterval,
     statPropertyValues.mnInterval,
     shieldPropertyValues.shieldInterval,
     shieldPropertyValues.shieldParticleInterval,
+
+    // DEBUFF
     debuffPropertyValues.pin,
     debuffPropertyValues.stun,
+    debuffTimeoutPropertyValues.pinTimeout,
+    debuffTimeoutPropertyValues.stunTimeout,
+
+    // Valued Debuff
+    valuedDebuffPropertyValues.slow,
+    valuedDebuffTimeoutPropertyValues.slowTimeout,
 ] as const;
 
 export const initPlayer = (playerId: string) => {
@@ -37,6 +52,8 @@ export const initPlayer = (playerId: string) => {
     job.setHp(player, job.getHp(player));
     job.setMn(player, job.getMn(player));
     setShield(player, getShield(player));
-    setDebuff(player, debuffPropertyValues.pin, getDebuffTime(player, debuffPropertyValues.pin));
-    setDebuff(player, debuffPropertyValues.stun, getDebuffTime(player, debuffPropertyValues.stun));
+
+    applyDebuff(player, "pin", getDebuffTime(player, "pin"));
+    applyDebuff(player, "stun", getDebuffTime(player, "stun"));
+    valuedDebuffActionMap.getOrThrow("slow")(player, 0, 0);
 };

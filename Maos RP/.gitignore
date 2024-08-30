@@ -1,3 +1,3 @@
 .idea/
-sounds/*.wav
-sounds/*.ogg
+sounds/**/*.wav
+sounds/**/*.ogg

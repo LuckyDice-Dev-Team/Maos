@@ -3,7 +3,7 @@ import { getJobType } from "../api/jobApi";
 import { jobs } from "../data/jobData";
 import { debuffPropertyValues, shieldPropertyValues, statPropertyValues } from "../data/propertyData";
 import { getShield, setShield } from "../api/shieldApi";
-import { getDebuffTime, setDebuff } from "../api/buffApi";
+import { getDebuffTime, applyDebuff } from "../api/buffApi";
 import { initPlayer, INTERVAL_KEYS } from "../api/initApi";
 
 world.afterEvents.playerJoin.subscribe(({ playerId }) => {

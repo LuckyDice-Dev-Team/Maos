@@ -4,7 +4,7 @@ import { dimensions, overworld } from "../system";
 import { Vector3, world } from "@minecraft/server";
 import { TeamTag } from "./tag";
 import { damageById } from "../api/damageApi";
-import { setDebuff } from "../api/buffApi";
+import { applyDebuff } from "../api/buffApi";
 import { debuffPropertyValues } from "./propertyData";
 import { getCenter } from "../utils/entityUtils";
 import { Space } from "../space/space";
@@ -164,7 +164,7 @@ export const projectileFunctions: {
 
             const target = world.getEntity(targetId);
             if (target) {
-                setDebuff(target, debuffPropertyValues.pin, 30); // 파티클 시간과 연계
+                applyDebuff(target, debuffPropertyValues.pin, 30); // 파티클 시간과 연계
 
                 const dimension = dimensions[dimensionId];
                 const targetHitLocation = targetHitLocations[targetId];

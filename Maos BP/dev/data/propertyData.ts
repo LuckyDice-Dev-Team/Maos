@@ -22,6 +22,15 @@ export const debuffPropertyValues = convertListToObject(debuffProperties);
 
 const debuffTimeoutProperties = ["stunTimeout", "pinTimeout"] as const;
 export type DebuffTimeoutProperty = (typeof debuffTimeoutProperties)[number];
+export const debuffTimeoutPropertyValues = convertListToObject(debuffTimeoutProperties);
+
+const valuedDebuffProperties = ["slow"] as const;
+export type ValuedDebuffProperty = (typeof valuedDebuffProperties)[number];
+export const valuedDebuffPropertyValues = convertListToObject(valuedDebuffProperties);
+
+const valuedDebuffTimeoutProperties = ["slowTimeout"] as const;
+export type ValuedDebuffTimeoutProperty = (typeof valuedDebuffTimeoutProperties)[number];
+export const valuedDebuffTimeoutPropertyValues = convertListToObject(valuedDebuffTimeoutProperties);
 
 const shieldProperties = ["shield", "shieldInterval", "shieldParticleInterval"] as const;
 export const shieldPropertyValues = convertListToObject(shieldProperties);

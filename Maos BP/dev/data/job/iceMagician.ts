@@ -6,7 +6,7 @@ import { SkillType } from "../../type/skillType";
 import { getShield, setShield } from "../../api/shieldApi";
 import { getAllies, getEnemies, getEnemiesFromViewDirection } from "../../api/entityApi";
 import { damage } from "../../api/damageApi";
-import { getDebuffTime, setDebuff } from "../../api/buffApi";
+import { getDebuffTime, applyDebuff, applyValuedDebuff } from "../../api/buffApi";
 import { trySpawnParticle } from "../../utils/particleUtils";
 import { Space } from "../../space/space";
 
@@ -139,7 +139,7 @@ export default class IceMagician extends Job {
                 trySpawnParticle(enemy.dimension, "maos:ice_magician_4_hit2", { ...hitLocation, y: hitLocation.y - 0.8 });
 
                 damage(18, player, enemy);
-                enemy.addEffect("slowness", 5);
+                applyValuedDebuff(enemy, "slow", 0, 5);
             });
         }, 5);
 
@@ -178,9 +178,7 @@ export default class IceMagician extends Job {
                 }
 
                 damage(damageValue, player, enemy);
-                enemy.addEffect("slowness", 60, {
-                    amplifier: 1,
-                });
+                applyValuedDebuff(enemy, "slow", 1, 60);
 
                 trySpawnParticle(enemy.dimension, "maos:ice_magician_5_hit2", {
                     ...enemy.location,
@@ -213,8 +211,8 @@ export default class IceMagician extends Job {
         const dimension = targetEntity.dimension;
 
         damage(200, player, targetEntity);
-        setDebuff(targetEntity, "stun", 50);
-        targetEntity.addEffect("slowness", 100, { amplifier: 2 });
+        applyDebuff(targetEntity, "stun", 50);
+        applyValuedDebuff(targetEntity, "slow", 2, 100);
 
         const controlLocation = Space.getByValue(5, 0, 0);
         const particleLocation = { ...hitLocation, y: hitLocation.y + 1 };
