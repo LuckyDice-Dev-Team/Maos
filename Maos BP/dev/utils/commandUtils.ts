@@ -1,5 +1,6 @@
 import { Entity } from "@minecraft/server";
 import { isPlayer } from "./entityUtils";
+import { valuedDebuffActionMap } from "../api/buffApi";
 
 export type InputPermission = "free" | "pin" | "stun";
 
@@ -44,4 +45,6 @@ export const setInputPermission = (entity: Entity, permission: InputPermission) 
             break;
         }
     }
+
+    valuedDebuffActionMap.getOrThrow("slow")(entity);
 };

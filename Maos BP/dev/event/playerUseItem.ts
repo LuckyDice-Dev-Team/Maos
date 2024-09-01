@@ -2,7 +2,7 @@ import { world } from "@minecraft/server";
 import { opList } from "../system";
 import AdminUI from "../ui/adminUI";
 import { sendWarn } from "../utils/entityUtils";
-import { setDebuff } from "../api/buffApi";
+import { applyDebuff } from "../api/buffApi";
 import { debuffPropertyValues } from "../data/propertyData";
 
 world.afterEvents.itemUse.subscribe(({ source, itemStack }) => {
@@ -30,12 +30,12 @@ world.afterEvents.itemUse.subscribe(({ source, itemStack }) => {
             }
 
             case "minecraft:ice": {
-                setDebuff(source, debuffPropertyValues.pin, 50);
+                applyDebuff(source, debuffPropertyValues.pin, 50);
                 return;
             }
 
             case "minecraft:blue_ice": {
-                setDebuff(source, debuffPropertyValues.stun, 50);
+                applyDebuff(source, debuffPropertyValues.stun, 50);
                 return;
             }
 
